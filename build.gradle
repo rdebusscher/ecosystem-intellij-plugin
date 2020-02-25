@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.16'
+}
+
+apply plugin: 'org.jetbrains.intellij'
+apply plugin: 'idea'
+apply plugin: 'java'
+
+group 'fish.payara.intellij'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+intellij {
+    version '2019.3'
+    type 'IU'
+    pluginName = 'Payara'
+    plugins 'java', 'JavaEE', 'Glassfish'
+}

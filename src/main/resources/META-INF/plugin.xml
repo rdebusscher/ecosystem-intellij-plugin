@@ -1,0 +1,21 @@
+<idea-plugin>
+    <id>fish.payara.intellij</id>
+    <name>Payara Tools</name>
+    <vendor email="info@payara.fish" url="https://www.payara.fish/">
+        Payara Foundation
+    </vendor>
+
+    <description>
+        Payara Intellij plugin allows configuring and using the Payara Server, 
+        for deploying and managing applications from the Intellij IDEA.  
+    </description>
+
+    <resource-bundle>fish.payara.PayaraBundle</resource-bundle>
+    <category>Application Servers</category>
+    <depends>GlassFish</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <javaee.appServerIntegration implementation="fish.payara.server.PayaraIntegration"/>
+    </extensions>
+
+</idea-plugin>
