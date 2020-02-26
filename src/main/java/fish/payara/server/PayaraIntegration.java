@@ -37,8 +37,11 @@ import static fish.payara.PayaraConstants.PAYARA_MODULES_DIRECTORY_NAME;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+import static java.util.stream.Collectors.toList;
 import javax.swing.Icon;
 
 public class PayaraIntegration extends JavaeeIntegration {
@@ -125,20 +128,17 @@ public class PayaraIntegration extends JavaeeIntegration {
     }
 
     private boolean findLibByPattern(String home, Pattern jarPattern) {
-        File libDir = new File(home, PAYARA_MODULES_DIRECTORY_NAME);
+        final File libDir = new File(home, PAYARA_MODULES_DIRECTORY_NAME);
         return libDir.isDirectory() && !findFilesByMask(jarPattern, libDir).isEmpty();
     }
 
     private List<File> findFilesByMask(@NotNull Pattern pattern, @NotNull File dir) {
-        final ArrayList<File> found = new ArrayList<>();
         final File[] files = dir.listFiles();
         if (files != null) {
-            for (File file : files) {
-                if (pattern.matcher(file.getName()).matches()) {
-                    found.add(file);
-                }
-            }
+            return Arrays.stream(files)
+                    .filter(f -> pattern.matcher(f.getName()).matches())
+                    .collect(toList());
         }
-        return found;
+        return Collections.emptyList();
     }
 }
