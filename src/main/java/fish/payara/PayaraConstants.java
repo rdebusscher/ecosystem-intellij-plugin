@@ -27,4 +27,28 @@ public interface PayaraConstants {
     String PAYARA_MODULES_DIRECTORY_NAME = "glassfish" + File.separator + "modules";
 
     String PAYARA_BIN_DIRECTORY_NAME = "bin";
+
+    String ADMIN_VIRTUAL_SERVER_ID = "__asadmin";
+    int DEFAULT_ADMIN_PORT = 4848;
+
+
+    String CONFIGS_TAG = "configs";
+    String CONFIG_TAG = "config";
+    String SERVER_CONFIG = "server-config";
+    String JAVA_CONFIG_TAG = "java-config";
+    String NETWORK_CONFIG_TAG = "network-config";
+    String NETWORK_LISTENERS_TAG = "network-listeners";
+    String NETWORK_LISTENER_TAG = "network-listener";
+    String PROTOCOLS_TAG = "protocols";
+    String PROTOCOL_TAG = "protocol";
+    String HTTP_SERVICE_TAG = "http-service";
+    String VIRTUAL_SERVER_TAG = "virtual-server";
+    String PORT_UNIFICATION_TAG = "port-unification";
+    String PROTOCOL_FINDER_TAG = "protocol-finder";
+    String NETWORK_LISTENERS_ATTR = "network-listeners";
+    String SECURITY_ENABLED_ATTR = "security-enabled";
+    String PROTOCOL_ATTR = "protocol";
+    String PORT_ATTR = "port";
+    String NAME_ATTR = "name";
+    String ID_ATTR = "id";
 }

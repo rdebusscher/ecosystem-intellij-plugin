@@ -22,8 +22,26 @@ import com.intellij.javaee.util.JavaeeJdomUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.JDOMUtil;
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import static fish.payara.PayaraConstants.CONFIGS_TAG;
+import static fish.payara.PayaraConstants.CONFIG_TAG;
+import static fish.payara.PayaraConstants.HTTP_SERVICE_TAG;
+import static fish.payara.PayaraConstants.ID_ATTR;
+import static fish.payara.PayaraConstants.JAVA_CONFIG_TAG;
+import static fish.payara.PayaraConstants.NAME_ATTR;
+import static fish.payara.PayaraConstants.NETWORK_CONFIG_TAG;
+import static fish.payara.PayaraConstants.NETWORK_LISTENERS_ATTR;
+import static fish.payara.PayaraConstants.NETWORK_LISTENERS_TAG;
+import static fish.payara.PayaraConstants.NETWORK_LISTENER_TAG;
+import static fish.payara.PayaraConstants.PROTOCOLS_TAG;
+import static fish.payara.PayaraConstants.PROTOCOL_ATTR;
+import static fish.payara.PayaraConstants.PROTOCOL_TAG;
+import static fish.payara.PayaraConstants.SERVER_CONFIG;
+import static fish.payara.PayaraConstants.VIRTUAL_SERVER_TAG;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -42,24 +60,16 @@ import org.jdom.JDOMException;
 //             <network-listeners>
 //                  <network-listener protocol="admin-listener" port="4848" name="admin-listener" thread-pool="admin-thread-pool" transport="tcp"/>
 //             </network-listeners>
-//           </network-config>
+//          </network-config>
+//          <http-service>
+//                  <virtual-server network-listeners="http-listener-1,http-listener-2" id="server"/>
+//                  <virtual-server network-listeners="admin-listener" id="__asadmin"/>
+//          </http-service>
 //        </config>
 //    </configs>
 public class PayaraDomainConfigProcessor extends ConfigBase {
 
     private static final Logger LOGGER = Logger.getInstance(PayaraDomainConfigProcessor.class);
-
-    private static final String CONFIGS_TAG = "configs";
-    private static final String CONFIG_TAG = "config";
-    private static final String SERVER_CONFIG = "server-config";
-    private static final String JAVA_CONFIG_TAG = "java-config";
-    private static final String NETWORK_CONFIG_TAG = "network-config";
-    private static final String NETWORK_LISTENERS_TAG = "network-listeners";
-    private static final String NETWORK_LISTENER_TAG = "network-listener";
-    private static final String PROTOCOLS_TAG = "protocols";
-    private static final String PROTOCOL_TAG = "protocol";
-    private static final String PROTOCOL_ATTR = "protocol";
-    private static final String NAME_ATTR = "name";
 
     protected final File domainConfig;
 
@@ -100,6 +110,37 @@ public class PayaraDomainConfigProcessor extends ConfigBase {
             networkListener = getChild(networkListeners, NETWORK_LISTENER_TAG, PROTOCOL_ATTR, id);
         }
         return networkListener;
+    }
+
+    public Element getVirtualServer(String id) {
+        Element virtualServer = null;
+        Element serverConfig = getServerConfig();
+        Element httpService = serverConfig.getChild(HTTP_SERVICE_TAG);
+        if (httpService != null) {
+            if (StringUtil.isEmpty(id)) {
+                virtualServer = getChild(httpService, VIRTUAL_SERVER_TAG);
+            } else {
+                virtualServer = getChild(httpService, VIRTUAL_SERVER_TAG, ID_ATTR, id);
+            }
+        }
+        return virtualServer;
+    }
+
+    public List<Element> getNetworkListenersFromVirtualServer(String virtualServerId) {
+        List<Element> listeners = new ArrayList<>();
+        Element virtualServer = getVirtualServer(virtualServerId);
+        if (virtualServer != null) {
+            String networkListenerIds = virtualServer.getAttributeValue(NETWORK_LISTENERS_ATTR);
+            if (networkListenerIds != null) {
+                for (String networkListenerId : networkListenerIds.split("\\,")) {
+                    Element listener = getNetworkListener(networkListenerId);
+                    if (listener != null) {
+                        listeners.add(listener);
+                    }
+                }
+            }
+        }
+        return listeners;
     }
 
     public Element findProtocol(String protocolName) {
