@@ -14,7 +14,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package fish.payara.server.config;
 
 import com.intellij.javaee.oss.util.ConfigBase;
@@ -152,7 +151,7 @@ public class PayaraDomainConfigProcessor extends ConfigBase {
         }
         return null;
     }
-    
+
     public Element getJavaConfig() {
         Element serverConfig = getServerConfig();
         return getOrCreateChild(serverConfig, JAVA_CONFIG_TAG);

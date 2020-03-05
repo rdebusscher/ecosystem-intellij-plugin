@@ -14,7 +14,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package fish.payara.server;
 
 import com.intellij.javaee.oss.server.JavaeeIntegration;
@@ -31,7 +30,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import org.jetbrains.annotations.NotNull;
-
 
 public class PayaraRemoteInstanceConfigurationEditor extends JavaeeRunSettingsEditor<PayaraRemoteInstanceModel> {
 
@@ -90,14 +88,13 @@ public class PayaraRemoteInstanceConfigurationEditor extends JavaeeRunSettingsEd
 
     private void setupUI() {
         final ActionListener listener = e -> {
-            boolean enable = this.clusterRadioButton.isSelected();
-            this.clusterName.setVisible(enable);
-            this.adminServerHost.setVisible(enable);
-            this.clusterNameLabel.setVisible(enable);
-            this.adminServerHostLabel.setVisible(enable);
+            boolean visible = this.clusterRadioButton.isSelected();
+            this.clusterName.setVisible(visible);
+            this.adminServerHost.setVisible(visible);
+            this.clusterNameLabel.setVisible(visible);
+            this.adminServerHostLabel.setVisible(visible);
         };
         this.domainRadioButton.addActionListener(listener);
         this.clusterRadioButton.addActionListener(listener);
-        listener.actionPerformed(null);
     }
 }

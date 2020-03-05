@@ -14,7 +14,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package fish.payara.server;
 
 import fish.payara.server.config.PayaraPortConfig;
@@ -80,7 +79,7 @@ public class PayaraLocalInstanceModel extends GlassfishServerModel {
     protected String getLogFilePath() {
         return new File(getDomainDir() + File.separator + "logs", "server.log").getAbsolutePath();
     }
-    
+
     public File getDomainConfig() {
         return new File(getDomainDir() + File.separator + "config", "domain.xml");
     }
@@ -96,9 +95,9 @@ public class PayaraLocalInstanceModel extends GlassfishServerModel {
         }
         return domains;
     }
-    
+
     public PayaraDomainConfigProcessor getDomainConfigProcessor() {
-        if(configProcessor == null) {
+        if (configProcessor == null) {
             this.configProcessor = new PayaraDomainConfigProcessor(getDomainConfig());
         }
         return configProcessor;

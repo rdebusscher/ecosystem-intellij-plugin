@@ -14,7 +14,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package fish.payara.server;
 
 import com.intellij.javaee.oss.server.JavaeeIntegration;
@@ -71,10 +70,10 @@ public class PayaraLocalInstanceConfigurationEditor extends JavaeeRunSettingsEdi
 
     private void setupUI() {
         this.domain.addBrowseFolderListener(
-                PayaraBundle.message("PayaraLocalInstanceConfigurationEditor.domain.chooser.title", new Object[0]),
-                PayaraBundle.message("PayaraLocalInstanceConfigurationEditor.domain.chooser.description", new Object[0]),
+                PayaraBundle.message("PayaraLocalInstanceConfigurationEditor.domain.chooser.title"),
+                PayaraBundle.message("PayaraLocalInstanceConfigurationEditor.domain.chooser.description"),
                 null,
-                createSingleFolderDescriptor(), 
+                createSingleFolderDescriptor(),
                 STRING_COMBOBOX_WHOLE_TEXT
         );
         this.domain.getComboBox().setEditable(true);
