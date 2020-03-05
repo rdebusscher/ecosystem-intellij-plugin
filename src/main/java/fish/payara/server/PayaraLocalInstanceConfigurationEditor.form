@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="fish.payara.server.PayaraLocalRunConfigurationEditor">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="fish.payara.server.PayaraLocalInstanceConfigurationEditor">
   <grid id="27dc6" binding="panel" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
@@ -46,7 +46,7 @@
         </constraints>
         <properties>
           <labelFor value="f3579"/>
-          <text resource-bundle="fish/payara/PayaraBundle" key="PayaraLocalRunConfigurationEditor.domain.label"/>
+          <text resource-bundle="fish/payara/PayaraBundle" key="PayaraLocalInstanceConfigurationEditor.domain.label"/>
         </properties>
       </component>
       <component id="fb620" class="javax.swing.JLabel">
@@ -55,7 +55,7 @@
         </constraints>
         <properties>
           <labelFor value="e22c"/>
-          <text resource-bundle="fish/payara/PayaraBundle" key="PayaraLocalRunConfigurationEditor.username.label"/>
+          <text resource-bundle="fish/payara/PayaraBundle" key="PayaraLocalInstanceConfigurationEditor.username.label"/>
         </properties>
       </component>
       <component id="4edc8" class="javax.swing.JLabel" binding="passwordLabel">
@@ -64,7 +64,7 @@
         </constraints>
         <properties>
           <labelFor value="5d0fa"/>
-          <text resource-bundle="fish/payara/PayaraBundle" key="PayaraLocalRunConfigurationEditor.password.label"/>
+          <text resource-bundle="fish/payara/PayaraBundle" key="PayaraLocalInstanceConfigurationEditor.password.label"/>
         </properties>
       </component>
     </children>

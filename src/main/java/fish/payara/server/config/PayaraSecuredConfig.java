@@ -22,7 +22,7 @@ import static fish.payara.PayaraConstants.PORT_UNIFICATION_TAG;
 import static fish.payara.PayaraConstants.PROTOCOL_ATTR;
 import static fish.payara.PayaraConstants.PROTOCOL_FINDER_TAG;
 import static fish.payara.PayaraConstants.SECURITY_ENABLED_ATTR;
-import fish.payara.server.PayaraLocalModel;
+import fish.payara.server.PayaraLocalInstanceModel;
 import java.util.List;
 import java.util.Objects;
 import org.jetbrains.annotations.NotNull;
@@ -35,14 +35,14 @@ public class PayaraSecuredConfig extends PayaraConfig {
     private final String virtualServerId;
     private boolean secured;
 
-    private PayaraSecuredConfig(PayaraLocalModel model, String virtualServerId) {
+    private PayaraSecuredConfig(PayaraLocalInstanceModel model, String virtualServerId) {
         super(model);
         this.secured = false;
         this.virtualServerId = virtualServerId;
     }
 
     @Override
-    protected void update(PayaraLocalModel model) {
+    protected void update(PayaraLocalInstanceModel model) {
         this.secured = false;
         List<Element> listeners = model.getDomainConfigProcessor()
                 .getNetworkListenersFromVirtualServer(this.virtualServerId);
@@ -55,7 +55,7 @@ public class PayaraSecuredConfig extends PayaraConfig {
     }
 
     private void findSecuredProtocol(
-            PayaraLocalModel model,
+            PayaraLocalInstanceModel model,
             String protocolName) {
 
         Element protocol = model.getDomainConfigProcessor().findProtocol(protocolName);
@@ -75,7 +75,7 @@ public class PayaraSecuredConfig extends PayaraConfig {
         }
     }
 
-    public static boolean isAdminSecured(PayaraLocalModel model) {
+    public static boolean isAdminSecured(PayaraLocalInstanceModel model) {
         PayaraSecuredConfig config = PayaraSecuredConfig.ADMIN_SERVER_FACTORY.get(model);
         return config != null && config.secured;
     }
@@ -84,7 +84,7 @@ public class PayaraSecuredConfig extends PayaraConfig {
         ADMIN_SERVER_FACTORY = new PayaraConfigFactory<PayaraSecuredConfig>() {
             @NotNull
             @Override
-            public PayaraSecuredConfig createConfig(PayaraLocalModel model) {
+            public PayaraSecuredConfig createConfig(PayaraLocalInstanceModel model) {
                 return new PayaraSecuredConfig(model, ADMIN_VIRTUAL_SERVER_ID);
             }
         };

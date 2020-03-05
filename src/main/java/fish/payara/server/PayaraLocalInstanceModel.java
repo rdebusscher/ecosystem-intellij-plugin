@@ -23,6 +23,7 @@ import com.intellij.javaee.oss.glassfish.server.GlassfishServerModel;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import static fish.payara.PayaraConstants.PAYARA_LOG_FILE_ID;
 import fish.payara.server.config.PayaraDomainConfigProcessor;
 import java.io.File;
 import java.util.Arrays;
@@ -31,11 +32,11 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 import org.jetbrains.annotations.NonNls;
 
-public class PayaraLocalModel extends GlassfishServerModel {
+public class PayaraLocalInstanceModel extends GlassfishServerModel {
 
     @NonNls
-    public String DOMAIN_NAME = "";
-    
+    public String DOMAIN_NAME = "domain1";
+
     private PayaraDomainConfigProcessor configProcessor;
 
     @Override
@@ -50,13 +51,15 @@ public class PayaraLocalModel extends GlassfishServerModel {
 
     @Override
     public SettingsEditor getEditor() {
-        return new PayaraLocalRunConfigurationEditor(PayaraIntegration.getInstance());
+        return new PayaraLocalInstanceConfigurationEditor(PayaraIntegration.getInstance());
     }
 
-    public File getScript() {
-        return new File(getBaseDir() + File.separator
+    public File getAsadminExecutablePath() {
+        return new File(
+                getHome() + File.separator
                 + "bin" + File.separator
-                + (SystemInfo.isWindows ? "asadmin.bat" : "asadmin"));
+                + (SystemInfo.isWindows ? "asadmin.bat" : "asadmin")
+        );
     }
 
     public String getBaseDir() {
@@ -67,13 +70,12 @@ public class PayaraLocalModel extends GlassfishServerModel {
         return getBaseDir() + File.separator + "domains";
     }
 
-    public String getDomainDir(String domain) {
-        return getDomainsDir() + File.separator + domain;
+    public String getDomainDir() {
+        return FileUtil.isAbsolute(DOMAIN_NAME) ? DOMAIN_NAME : getDomainsDir() + File.separator + DOMAIN_NAME;
     }
     
     public File getDomainConfig() {
-        String domainDir = FileUtil.isAbsolute(DOMAIN_NAME) ? DOMAIN_NAME : getDomainDir(DOMAIN_NAME);
-        return new File(domainDir, "config" + File.separator + "domain.xml");
+        return new File(getDomainDir() + File.separator + "config", "domain.xml");
     }
 
     public List<String> getDomains() {

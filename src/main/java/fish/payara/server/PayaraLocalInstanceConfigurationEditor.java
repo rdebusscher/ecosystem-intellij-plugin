@@ -33,7 +33,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import org.jetbrains.annotations.NotNull;
 
-public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<PayaraLocalInstanceModel> {
+public class PayaraLocalInstanceConfigurationEditor extends JavaeeRunSettingsEditor<PayaraLocalInstanceModel> {
 
     private JPanel panel;
     private ComboboxWithBrowseButton domain;
@@ -41,7 +41,7 @@ public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<P
     private JPasswordField password;
     private JLabel passwordLabel;
 
-    public PayaraLocalRunConfigurationEditor(JavaeeIntegration integration) {
+    public PayaraLocalInstanceConfigurationEditor(JavaeeIntegration integration) {
         super(integration);
         setupUI();
     }
@@ -71,8 +71,8 @@ public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<P
 
     private void setupUI() {
         this.domain.addBrowseFolderListener(
-                PayaraBundle.message("PayaraLocalRunConfigurationEditor.domain.chooser.title", new Object[0]),
-                PayaraBundle.message("PayaraLocalRunConfigurationEditor.domain.chooser.description", new Object[0]),
+                PayaraBundle.message("PayaraLocalInstanceConfigurationEditor.domain.chooser.title", new Object[0]),
+                PayaraBundle.message("PayaraLocalInstanceConfigurationEditor.domain.chooser.description", new Object[0]),
                 null,
                 createSingleFolderDescriptor(), 
                 STRING_COMBOBOX_WHOLE_TEXT

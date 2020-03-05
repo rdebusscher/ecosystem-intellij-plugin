@@ -18,17 +18,17 @@
 package fish.payara.server.config;
 
 import com.intellij.javaee.oss.util.CachedConfig;
-import fish.payara.server.PayaraLocalModel;
+import fish.payara.server.PayaraLocalInstanceModel;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class PayaraConfig extends CachedConfig<PayaraLocalModel> {
+public abstract class PayaraConfig extends CachedConfig<PayaraLocalInstanceModel> {
 
-    private final PayaraLocalModel model;
+    private final PayaraLocalInstanceModel model;
 
-    protected PayaraConfig(PayaraLocalModel model) {
+    protected PayaraConfig(PayaraLocalInstanceModel model) {
         this.model = model;
     }
 
@@ -37,28 +37,28 @@ public abstract class PayaraConfig extends CachedConfig<PayaraLocalModel> {
     }
 
     @Override
-    protected long getStamp(PayaraLocalModel model) {
+    protected long getStamp(PayaraLocalInstanceModel model) {
         return CachedConfig.getStamp(model.getDomainConfig());
     }
 
     protected abstract static class PayaraConfigFactory<T extends PayaraConfig>
-            implements Factory<PayaraLocalModel, T> {
+            implements Factory<PayaraLocalInstanceModel, T> {
 
         private final Map<Key, T> cache = new HashMap<>();
 
         @NotNull
         @Override
-        public Key createKey(PayaraLocalModel model) {
+        public Key createKey(PayaraLocalInstanceModel model) {
             return new Key(new String[]{model.getHome(), model.DOMAIN_NAME});
         }
 
-        public T get(PayaraLocalModel model) {
+        public T get(PayaraLocalInstanceModel model) {
             return (T) PayaraConfig.get(this.cache, this, model);
         }
 
         @NotNull
         @Override
-        public abstract T createConfig(PayaraLocalModel model);
+        public abstract T createConfig(PayaraLocalInstanceModel model);
 
     }
 

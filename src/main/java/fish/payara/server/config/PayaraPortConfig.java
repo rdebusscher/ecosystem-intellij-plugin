@@ -17,7 +17,7 @@
 
 package fish.payara.server.config;
 
-import fish.payara.server.PayaraLocalModel;
+import fish.payara.server.PayaraLocalInstanceModel;
 import static fish.payara.PayaraConstants.ADMIN_VIRTUAL_SERVER_ID;
 import static fish.payara.PayaraConstants.DEFAULT_ADMIN_PORT;
 import static fish.payara.PayaraConstants.PORT_ATTR;
@@ -32,13 +32,13 @@ public class PayaraPortConfig extends PayaraConfig {
     private final String virtualServerId;
     private int port = DEFAULT_ADMIN_PORT;
 
-    private PayaraPortConfig(PayaraLocalModel model, String virtualServerId) {
+    private PayaraPortConfig(PayaraLocalInstanceModel model, String virtualServerId) {
         super(model);
         this.virtualServerId = virtualServerId;
     }
 
     @Override
-    protected void update(PayaraLocalModel model) {
+    protected void update(PayaraLocalInstanceModel model) {
         List<Element> listeners = model.getDomainConfigProcessor()
                 .getNetworkListenersFromVirtualServer(this.virtualServerId);
         if (!listeners.isEmpty()) {
@@ -53,7 +53,7 @@ public class PayaraPortConfig extends PayaraConfig {
         }
     }
 
-    public static int getAdminPort(PayaraLocalModel model) {
+    public static int getAdminPort(PayaraLocalInstanceModel model) {
         PayaraPortConfig config = PayaraPortConfig.ADMIN_SERVER_FACTORY.get(model);
         return config != null ? config.port : DEFAULT_ADMIN_PORT;
     }
@@ -62,7 +62,7 @@ public class PayaraPortConfig extends PayaraConfig {
         ADMIN_SERVER_FACTORY = new PayaraConfig.PayaraConfigFactory<PayaraPortConfig>() {
             @NotNull
             @Override
-            public PayaraPortConfig createConfig(PayaraLocalModel model) {
+            public PayaraPortConfig createConfig(PayaraLocalInstanceModel model) {
                 return new PayaraPortConfig(model, ADMIN_VIRTUAL_SERVER_ID);
             }
         };
