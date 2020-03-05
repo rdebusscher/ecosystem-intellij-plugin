@@ -28,9 +28,11 @@ import fish.payara.server.config.PayaraDomainConfigProcessor;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import static java.util.Collections.singletonList;
 import java.util.List;
 import static java.util.stream.Collectors.toList;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.Nullable;
 
 public class PayaraLocalInstanceModel extends GlassfishServerModel {
 
@@ -73,6 +75,11 @@ public class PayaraLocalInstanceModel extends GlassfishServerModel {
     public String getDomainDir() {
         return FileUtil.isAbsolute(DOMAIN_NAME) ? DOMAIN_NAME : getDomainsDir() + File.separator + DOMAIN_NAME;
     }
+
+    @Nullable
+    protected String getLogFilePath() {
+        return new File(getDomainDir() + File.separator + "logs", "server.log").getAbsolutePath();
+    }
     
     public File getDomainConfig() {
         return new File(getDomainDir() + File.separator + "config", "domain.xml");
@@ -95,6 +102,24 @@ public class PayaraLocalInstanceModel extends GlassfishServerModel {
             this.configProcessor = new PayaraDomainConfigProcessor(getDomainConfig());
         }
         return configProcessor;
+    }
+
+    @Override
+    protected List<LogFileFactory> getLogFileFactories() {
+        return singletonList(new PayaraLogFileFactory());
+    }
+
+    private class PayaraLogFileFactory extends DefaultLogFileFactory {
+
+        @Override
+        protected String getPath() {
+            return PayaraLocalInstanceModel.this.getLogFilePath();
+        }
+
+        @Override
+        protected String getName() {
+            return PAYARA_LOG_FILE_ID;
+        }
     }
 
 }
