@@ -33,7 +33,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import org.jetbrains.annotations.NotNull;
 
-public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<PayaraLocalModel> {
+public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<PayaraLocalInstanceModel> {
 
     private JPanel panel;
     private ComboboxWithBrowseButton domain;
@@ -53,7 +53,7 @@ public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<P
     }
 
     @Override
-    protected void resetEditorFrom(PayaraLocalModel model) {
+    protected void resetEditorFrom(PayaraLocalInstanceModel model) {
         JComboBox domainComboBox = this.domain.getComboBox();
         domainComboBox.removeAllItems();
         model.getDomains().forEach(domainComboBox::addItem);
@@ -63,7 +63,7 @@ public class PayaraLocalRunConfigurationEditor extends JavaeeRunSettingsEditor<P
     }
 
     @Override
-    protected void applyEditorTo(PayaraLocalModel model) throws ConfigurationException {
+    protected void applyEditorTo(PayaraLocalInstanceModel model) throws ConfigurationException {
         model.DOMAIN_NAME = (String) this.domain.getComboBox().getEditor().getItem();
         model.USERNAME = this.username.getText();
         JavaeeRunConfigurationEditorUtil.applyPasswordTo(model, this.password);
