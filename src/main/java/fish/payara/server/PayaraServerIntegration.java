@@ -17,16 +17,20 @@
 
 package fish.payara.server;
 
+import com.intellij.javaee.deployment.DeploymentModel;
+import com.intellij.javaee.deployment.DeploymentSource;
 import com.intellij.javaee.facet.JavaeeFacet;
 import com.intellij.javaee.openapi.ex.AppServerIntegrationsManager;
 import com.intellij.javaee.oss.descriptor.JavaeeDescriptorsManager;
 import com.intellij.javaee.oss.glassfish.GlassfishUtil;
 import com.intellij.javaee.oss.glassfish.model.GlassfishWebRoot;
+import com.intellij.javaee.oss.glassfish.server.GlassfishDeploymentModel;
 import com.intellij.javaee.oss.glassfish.server.GlassfishServerVersionConfig;
 import com.intellij.javaee.oss.server.DefaultTemplateMatcher;
 import com.intellij.javaee.oss.server.JavaeeIntegration;
 import static com.intellij.javaee.oss.server.JavaeeIntegration.checkDir;
 import com.intellij.javaee.oss.server.JavaeePersistentData;
+import com.intellij.javaee.run.configuration.CommonModel;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.text.StringUtil;
 import fish.payara.PayaraBundle;
@@ -36,7 +40,6 @@ import static fish.payara.PayaraConstants.PAYARA_JAR_PATTERN;
 import static fish.payara.PayaraConstants.PAYARA_MODULES_DIRECTORY_NAME;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,12 +47,12 @@ import java.util.regex.Pattern;
 import static java.util.stream.Collectors.toList;
 import javax.swing.Icon;
 
-public class PayaraIntegration extends JavaeeIntegration {
+public class PayaraServerIntegration extends JavaeeIntegration {
 
-    public static PayaraIntegration getInstance() {
+    public static PayaraServerIntegration getInstance() {
         return AppServerIntegrationsManager
                 .getInstance()
-                .getIntegration(PayaraIntegration.class);
+                .getIntegration(PayaraServerIntegration.class);
     }
 
     @NotNull
@@ -123,11 +126,11 @@ public class PayaraIntegration extends JavaeeIntegration {
     protected void collectDescriptors(JavaeeDescriptorsManager jdm) {
     }
 
-    private boolean isValidServerPath(String home) {
+    private boolean isValidServerPath(@NotNull String home) {
         return findLibByPattern(home, PAYARA_JAR_PATTERN);
     }
 
-    private boolean findLibByPattern(String home, Pattern jarPattern) {
+    private boolean findLibByPattern(@NotNull String home, @NotNull Pattern jarPattern) {
         final File libDir = new File(home, PAYARA_MODULES_DIRECTORY_NAME);
         return libDir.isDirectory() && !findFilesByMask(jarPattern, libDir).isEmpty();
     }
@@ -141,4 +144,20 @@ public class PayaraIntegration extends JavaeeIntegration {
         }
         return Collections.emptyList();
     }
+
+    @Override
+    public DeploymentModel createNewDeploymentModel(CommonModel commonModel, DeploymentSource source) {
+        return new GlassfishDeploymentModel(commonModel, source);
+    }
+
+    @Override
+    public boolean isStartupScriptTerminating() {
+        return true;
+    }
+
+    @Override
+    public boolean isJreCustomizable() {
+        return true;
+    }
+
 }

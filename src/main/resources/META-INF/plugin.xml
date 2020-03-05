@@ -15,7 +15,8 @@
     <depends>GlassFish</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <javaee.appServerIntegration implementation="fish.payara.server.PayaraIntegration"/>
+        <configurationType implementation="fish.payara.server.PayaraServerConfiguration"/>
+        <javaee.appServerIntegration implementation="fish.payara.server.PayaraServerIntegration"/>
     </extensions>
 
 </idea-plugin>

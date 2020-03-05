@@ -24,7 +24,7 @@ public class PayaraRemoteInstanceModel extends GlassfishRemoteModel {
 
     @Override
     public SettingsEditor getEditor() {
-        return new PayaraRemoteInstanceConfigurationEditor(PayaraIntegration.getInstance());
+        return new PayaraRemoteInstanceConfigurationEditor(PayaraServerIntegration.getInstance());
     }
 
 }

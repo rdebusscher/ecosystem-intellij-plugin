@@ -53,7 +53,7 @@ public class PayaraLocalInstanceModel extends GlassfishServerModel {
 
     @Override
     public SettingsEditor getEditor() {
-        return new PayaraLocalInstanceConfigurationEditor(PayaraIntegration.getInstance());
+        return new PayaraLocalInstanceConfigurationEditor(PayaraServerIntegration.getInstance());
     }
 
     public File getAsadminExecutablePath() {
