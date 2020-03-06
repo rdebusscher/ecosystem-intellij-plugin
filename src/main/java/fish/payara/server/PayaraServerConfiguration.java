@@ -46,11 +46,13 @@ public class PayaraServerConfiguration extends JavaeeConfigurationType {
     }
 
     @Override
+    @NotNull
     protected ServerModel createRemoteModel() {
         return new PayaraRemoteInstanceModel();
     }
 
     @Override
+    @NotNull
     protected ExecutableObjectStartupPolicy createStartupPolicy() {
         return new PayaraStartupPolicy();
     }

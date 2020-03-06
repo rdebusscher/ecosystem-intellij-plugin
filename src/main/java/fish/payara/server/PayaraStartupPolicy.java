@@ -41,9 +41,9 @@ public class PayaraStartupPolicy extends JavaeeStartupPolicy<PayaraLocalInstance
         if (jrePath != null) {
             vars.add(new EnvironmentVariable(JAVA_HOME_ENV_KEY, jrePath, true));
             if (SystemInfo.isWindows) {
-                vars.add(new EnvironmentVariable(PATH_ENV_KEY, jrePath + File.separator + "bin;%PATH%", true));
+                vars.add(new EnvironmentVariable(PATH_ENV_KEY, jrePath + File.separator + "bin;" + System.getenv(PATH_ENV_KEY), true));
             } else {
-                vars.add(new EnvironmentVariable(PATH_ENV_KEY, jrePath + File.separator + "bin:$PATH", true));
+                vars.add(new EnvironmentVariable(PATH_ENV_KEY, jrePath + File.separator + "bin:" + System.getenv(PATH_ENV_KEY), true));
             }
         }
         return vars;

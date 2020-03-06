@@ -48,7 +48,7 @@ public abstract class PayaraConfig extends CachedConfig<PayaraLocalInstanceModel
         @NotNull
         @Override
         public Key createKey(PayaraLocalInstanceModel model) {
-            return new Key(new String[]{model.getHome(), model.DOMAIN_NAME});
+            return new Key(model.getHome(), model.DOMAIN_NAME);
         }
 
         public T get(PayaraLocalInstanceModel model) {
