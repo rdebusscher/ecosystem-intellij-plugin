@@ -131,7 +131,7 @@ public class PayaraDomainConfigProcessor extends ConfigBase {
         if (virtualServer != null) {
             String networkListenerIds = virtualServer.getAttributeValue(NETWORK_LISTENERS_ATTR);
             if (networkListenerIds != null) {
-                for (String networkListenerId : networkListenerIds.split("\\,")) {
+                for (String networkListenerId : networkListenerIds.split(",")) {
                     Element listener = getNetworkListener(networkListenerId);
                     if (listener != null) {
                         listeners.add(listener);
