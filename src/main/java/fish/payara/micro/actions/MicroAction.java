@@ -14,8 +14,9 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.terminal.JBTerminalWidget;
 import com.intellij.ui.content.Content;
 import com.jediterm.terminal.TtyConnector;
+import fish.payara.micro.PayaraMicroProject;
+import fish.payara.micro.gradle.GradleProject;
 import fish.payara.micro.maven.MavenProject;
-import fish.payara.micro.maven.PayaraMicroProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.terminal.LocalTerminalDirectRunner;
 import org.jetbrains.plugins.terminal.ShellTerminalWidget;
@@ -45,11 +46,16 @@ public abstract class MicroAction extends AnAction {
             }
 
             PayaraMicroProject microProject = MavenProject.getInstance(project);
-            if (microProject == null) {
+            PayaraMicroProject gradleProject = GradleProject.getInstance(project);
+            if (microProject == null && gradleProject == null) {
                 LOG.warning("Unable to resolve Payara Micro project type.");
                 return;
             }
-            onAction(microProject);
+            if(microProject != null) {
+                onAction(microProject);
+            } else {
+                onAction(gradleProject);
+            }
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, null, ex);
         }
@@ -89,6 +95,10 @@ public abstract class MicroAction extends AnAction {
 
     public void executeCommand(JBTerminalWidget widget, String command) {
         try {
+            widget.setRequestFocusEnabled(true);
+            widget.requestFocusInWindow();
+            widget.requestFocus(true);
+            widget.requestFocus();
             widget.grabFocus();
             TtyConnector connector = widget.getTtyConnector();
             if (connector != null) {

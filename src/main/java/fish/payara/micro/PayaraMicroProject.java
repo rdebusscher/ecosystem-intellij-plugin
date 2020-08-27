@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package fish.payara.micro.maven;
+package fish.payara.micro;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
@@ -38,7 +38,7 @@ public abstract class PayaraMicroProject implements Project {
 
     public abstract String getProjectName();
 
-    public abstract String getStartCommand();
+    public abstract String getStartCommand(boolean debug);
 
     public abstract String getReloadCommand();
 
@@ -46,8 +46,6 @@ public abstract class PayaraMicroProject implements Project {
 
     public abstract String getBundleCommand();
     
-    public abstract String getDebugCommand();
-
     @Override
     public String getName() {
         return project.getName();

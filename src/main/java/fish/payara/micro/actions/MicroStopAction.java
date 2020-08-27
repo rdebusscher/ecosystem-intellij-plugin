@@ -6,7 +6,7 @@
 package fish.payara.micro.actions;
 
 import com.intellij.terminal.JBTerminalWidget;
-import fish.payara.micro.maven.PayaraMicroProject;
+import fish.payara.micro.PayaraMicroProject;
 import static java.util.logging.Level.WARNING;
 import java.util.logging.Logger;
 

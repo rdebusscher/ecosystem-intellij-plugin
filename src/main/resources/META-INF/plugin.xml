@@ -41,7 +41,8 @@
                 class="fish.payara.micro.actions.MicroStopAction"
                 text="Stop Micro"
                 description="Stop Payara Micro" 
-                icon="AllIcons.Actions.Cancel" />
+                icon="AllIcons.Actions.Cancel" >
+        </action>
         
         <action id="fish.payara.micro.actions.MicroBundleAction"
                 class="fish.payara.micro.actions.MicroBundleAction"

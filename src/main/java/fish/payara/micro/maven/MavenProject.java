@@ -9,6 +9,15 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import fish.payara.micro.PayaraMicroProject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,14 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import static java.util.stream.Collectors.toList;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -42,41 +45,74 @@ public class MavenProject extends PayaraMicroProject {
     private static final String ARTIFACT_ID = "artifactId";
     private static final String MICRO_GROUP_ID = "fish.payara.maven.plugins";
     private static final String MICRO_ARTIFACT_ID = "payara-micro-maven-plugin";
-    private static final String START_GOAL = "start";
-    private static final String RELOAD_GOAL = "reload";
-    private static final String STOP_GOAL = "stop";
-    private static final String BUNDLE_GOAL = "bundle";
-    private static final String DEBUG_PROPERTY = "-Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
+    private static final String START_GOAL = "payara-micro:start";
+    private static final String RELOAD_GOAL = "payara-micro:reload";
+    private static final String STOP_GOAL = "payara-micro:stop";
+    private static final String BUNDLE_GOAL = "payara-micro:bundle";
+    private static final String WAR_EXPLODE_GOAL = "war:exploded";
+    private static final String COMPILE_GOAL = "compiler:compile";
+    private static final String RESOURCES_GOAL = "resources:resources";
+
+    private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
     private static final String BUILD_FILE = "pom.xml";
+    private static final String USE_UBER_JAR = "useUberJar";
+    private static final String EXPLODED = "exploded";
+    private static final String DEPLOY_WAR = "deployWar";
+    private boolean useUberJar, exploded, deployWar;
 
     @Override
-    public String getStartCommand() {
-        return String.format("mvn %s:%s:%s -f \"%s\"", MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL,
-                getBuildFile().getVirtualFile().getCanonicalPath());
+    public String getStartCommand(boolean debug) {
+        String cmd;
+        if (useUberJar) {
+            cmd = getStartUberJarCommand();
+        } else if (exploded) {
+            cmd = getStartExplodedWarCommand();
+        } else {
+            cmd = String.format("mvn %s",
+                    START_GOAL
+            );
+        }
+        return debug ? cmd + DEBUG_PROPERTY : cmd;
     }
 
-    @Override
-    public String getDebugCommand() {
-        return String.format("mvn %s:%s:%s %s -f \"%s\"", MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL, DEBUG_PROPERTY,
-                getBuildFile().getVirtualFile().getCanonicalPath());
+    private String getStartUberJarCommand() {
+        return String.format("mvn install %s %s",
+                BUNDLE_GOAL,
+                START_GOAL
+        );
+    }
+
+    private String getStartExplodedWarCommand() {
+        return String.format("mvn -Dexploded=true -DdeployWar=true %s %s %s %s",
+                RESOURCES_GOAL,
+                COMPILE_GOAL,
+                WAR_EXPLODE_GOAL,
+                START_GOAL
+        );
     }
 
     @Override
     public String getReloadCommand() {
-        return String.format("mvn %s:%s:%s -f \"%s\"", MICRO_GROUP_ID, MICRO_ARTIFACT_ID, RELOAD_GOAL,
-                getBuildFile().getVirtualFile().getCanonicalPath());
+        return String.format("mvn %s %s %s %s",
+                RESOURCES_GOAL,
+                COMPILE_GOAL,
+                WAR_EXPLODE_GOAL,
+                RELOAD_GOAL
+        );
     }
 
     @Override
     public String getStopCommand() {
-        return String.format("mvn %s:%s:%s -f \"%s\"", MICRO_GROUP_ID, MICRO_ARTIFACT_ID, STOP_GOAL,
-                getBuildFile().getVirtualFile().getCanonicalPath());
+        return String.format("mvn %s",
+                STOP_GOAL
+        );
     }
 
     @Override
     public String getBundleCommand() {
-        return String.format("mvn install %s:%s:%s -f \"%s\"", MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL,
-                getBuildFile().getVirtualFile().getCanonicalPath());
+        return String.format("mvn install %s",
+                BUNDLE_GOAL
+        );
     }
 
     public static MavenProject getInstance(Project project) {
@@ -89,6 +125,7 @@ public class MavenProject extends PayaraMicroProject {
 
     private MavenProject(Project project, PsiFile pom) {
         super(project, pom);
+        parsePom();
     }
 
     /**
@@ -209,6 +246,10 @@ public class MavenProject extends PayaraMicroProject {
     }
 
     private static boolean isMicroPlugin(Node buildNode) {
+        return getMicroPluginNode(buildNode) != null;
+    }
+
+    private static Node getMicroPluginNode(Node buildNode) {
         NodeList buildChildNodes = buildNode.getChildNodes();
         for (int buildChildNodeIndex = 0; buildChildNodeIndex < buildChildNodes.getLength(); buildChildNodeIndex++) {
             Node buildChildNode = buildChildNodes.item(buildChildNodeIndex);
@@ -226,12 +267,43 @@ public class MavenProject extends PayaraMicroProject {
                         microArtifactId = true;
                     }
                     if (microGroupId && microArtifactId) {
-                        return true;
+                        return pluginNode;
                     }
                 }
             }
         }
-        return false;
+        return null;
+    }
+
+    private void parsePom() {
+        try {
+            Node pomRoot = getPomRootNode(super.getBuildFile());
+            for (Node buildNode : getBuildNodes(pomRoot)) {
+                Node plugin = getMicroPluginNode(buildNode);
+                NodeList pluginChildNodes = plugin.getChildNodes();
+                for (int i = 0; i < pluginChildNodes.getLength(); i++) {
+                    Node configurationNode = pluginChildNodes.item(i);
+                    if (configurationNode.getNodeName().equals("configuration")) {
+                        NodeList configurationChildNodes = configurationNode.getChildNodes();
+                        for (int j = 0; j < configurationChildNodes.getLength(); j++) {
+                            Node param = configurationChildNodes.item(j);
+                            if (param.getNodeName().equals(USE_UBER_JAR)
+                                    && param.getTextContent().equals("true")) {
+                                useUberJar = true;
+                            } else if (param.getNodeName().equals(EXPLODED)
+                                    && param.getTextContent().equals("true")) {
+                                exploded = true;
+                            } else if (param.getNodeName().equals(DEPLOY_WAR)
+                                    && param.getTextContent().equals("true")) {
+                                deployWar = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        }
     }
 
 }

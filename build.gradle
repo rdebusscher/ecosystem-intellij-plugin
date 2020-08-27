@@ -28,5 +28,5 @@ intellij {
     version '2020.1'
     type 'IU'
     pluginName = 'Payara'
-    plugins 'java', 'maven', 'JavaEE', 'Glassfish', 'terminal'
+    plugins 'java', 'maven', 'gradle', 'JavaEE', 'Glassfish', 'terminal'
 }

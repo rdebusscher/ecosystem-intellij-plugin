@@ -6,7 +6,7 @@
 package fish.payara.micro.actions;
 
 import com.intellij.terminal.JBTerminalWidget;
-import fish.payara.micro.maven.PayaraMicroProject;
+import fish.payara.micro.PayaraMicroProject;
 
 import java.util.logging.Logger;
 
@@ -26,7 +26,7 @@ public class MicroStartAction extends MicroAction {
         projectName = project.getProjectName();
         JBTerminalWidget terminal = getTerminal(project, projectName + " instance");
         if (terminal!= null) {
-            executeCommand(terminal, project.getStartCommand());
+            executeCommand(terminal, project.getStartCommand(false));
         } else {
             LOG.log(WARNING, "Shell window for {0} is not available.", projectName);
         }
