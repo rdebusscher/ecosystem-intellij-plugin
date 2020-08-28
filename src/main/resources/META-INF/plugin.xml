@@ -47,8 +47,8 @@
         
         <action id="fish.payara.micro.actions.MicroBundleAction"
                 class="fish.payara.micro.actions.MicroBundleAction"
-                text="Build Micro"
-                description="Build Payara Micro" 
+                text="Build Uber Jar"
+                description="Build Uber Jar"
                 icon="AllIcons.Actions.Compile" />
 
         <action id="fish.payara.micro.actions.MicroReloadAction"
