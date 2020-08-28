@@ -6,7 +6,7 @@
     </vendor>
 
     <description>
-        Payara Intellij plugin allows configuring and using the Payara Server, 
+        Payara Intellij plugin allows configuring and using the Payara Platform, 
         for deploying and managing applications from the Intellij IDEA.  
     </description>
     
@@ -20,6 +20,7 @@
     <category>Application Servers</category>
 
     <extensions defaultExtensionNs="com.intellij">
+        <configurationType implementation="fish.payara.micro.PayaraMicroConfigurationType"/>
         <configurationType implementation="fish.payara.server.PayaraServerConfiguration"/>
         <javaee.appServerIntegration implementation="fish.payara.server.PayaraServerIntegration"/>
     </extensions>
