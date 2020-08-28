@@ -34,9 +34,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import static java.util.logging.Level.SEVERE;
 import java.util.logging.Logger;
 
+import static java.util.logging.Level.SEVERE;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -64,7 +64,7 @@ public class MavenProject extends PayaraMicroProject {
     private static final String WAR_EXPLODE_GOAL = "war:exploded";
     private static final String COMPILE_GOAL = "compiler:compile";
     private static final String RESOURCES_GOAL = "resources:resources";
-    private static final String INSTALL_GOAL = "install";
+    public static final String INSTALL_GOAL = "install";
 
     private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
     private static final String BUILD_FILE = "pom.xml";
@@ -84,6 +84,7 @@ public class MavenProject extends PayaraMicroProject {
             cmd = getStartExplodedWarCommand();
         } else {
             cmd = String.format("mvn %s:%s:%s",
+                    INSTALL_GOAL,
                     MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
             );
         }
@@ -92,7 +93,6 @@ public class MavenProject extends PayaraMicroProject {
 
     private String getStartUberJarCommand() {
         return String.format("mvn %s %s:%s:%s %s:%s:%s",
-                INSTALL_GOAL,
                 MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL,
                 MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
         );
@@ -132,7 +132,6 @@ public class MavenProject extends PayaraMicroProject {
     @Override
     public String getBundleCommand() {
         return String.format("mvn %s %s:%s:%s",
-                INSTALL_GOAL,
                 MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL
         );
     }

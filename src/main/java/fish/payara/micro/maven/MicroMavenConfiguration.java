@@ -33,6 +33,7 @@ public class MicroMavenConfiguration extends MavenRunConfiguration {
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         MavenRunnerParameters parameters = this.getRunnerParameters();
         if (parameters != null && parameters.getGoals().isEmpty()) {
+            parameters.getGoals().add(MavenProject.INSTALL_GOAL);
             parameters.getGoals().add(String.format(
                     "%s:%s:RELEASE:%s",
                     MavenProject.MICRO_GROUP_ID,

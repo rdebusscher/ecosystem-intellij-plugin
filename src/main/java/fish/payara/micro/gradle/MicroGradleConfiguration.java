@@ -24,6 +24,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.gradle.service.execution.GradleRunConfiguration;
 
+import java.util.ArrayList;
+
 public class MicroGradleConfiguration extends GradleRunConfiguration {
 
     protected MicroGradleConfiguration(Project project, ConfigurationFactory factory, String name) {
@@ -34,8 +36,11 @@ public class MicroGradleConfiguration extends GradleRunConfiguration {
     @Override
     public SettingsEditor<ExternalSystemRunConfiguration> getConfigurationEditor() {
         ExternalSystemTaskExecutionSettings settings = super.getSettings();
-        if (settings.getTaskNames().isEmpty()
-                && settings.getScriptParameters().isEmpty()) {
+        if (settings.getTaskNames() == null){
+            settings.setTaskNames(new ArrayList<>());
+        }
+        if(settings.getTaskNames().isEmpty()) {
+            settings.getTaskNames().add(GradleProject.BUILD_GOAL);
             settings.getTaskNames().add(GradleProject.START_GOAL);
 //            settings.setScriptParameters(GradleProject.DEPLOY_WAR_PROPERTY);
         }

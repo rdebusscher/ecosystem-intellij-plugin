@@ -29,10 +29,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
-import static java.util.logging.Level.SEVERE;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.util.logging.Level.SEVERE;
 
 /**
  *
@@ -50,7 +51,7 @@ public class GradleProject extends PayaraMicroProject {
     private static final String STOP_GOAL = "microStop";
     private static final String BUNDLE_GOAL = "microBundle";
     private static final String WAR_EXPLODE_GOAL = "warExplode";
-    private static final String INSTALL_GOAL = "install";
+    public static final String BUILD_GOAL = "build";
     private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
     private static final String SETTINGS_FILE = "settings.gradle";
     private static final String ROOT_PROJECT_NAME = "rootProject.name";
@@ -72,7 +73,9 @@ public class GradleProject extends PayaraMicroProject {
             cmd = getStartExplodedWarCommand();
         } else {
             cmd = String.format("gradle %s",
-                    START_GOAL
+                    BUILD_GOAL,
+                    START_GOAL,
+                    DEPLOY_WAR_PROPERTY
             );
         }
         return debug ? cmd + DEBUG_PROPERTY : cmd;
@@ -89,8 +92,8 @@ public class GradleProject extends PayaraMicroProject {
         return String.format("gradle %s %s %s %s",
                 WAR_EXPLODE_GOAL,
                 START_GOAL,
-                EXPLODED_PROPERTY,
-                DEPLOY_WAR_PROPERTY
+                DEPLOY_WAR_PROPERTY,
+                EXPLODED_PROPERTY
         );
     }
 
@@ -115,7 +118,6 @@ public class GradleProject extends PayaraMicroProject {
     @Override
     public String getBundleCommand() {
         return String.format("gradle %s %s",
-                INSTALL_GOAL,
                 BUNDLE_GOAL
         );
     }
