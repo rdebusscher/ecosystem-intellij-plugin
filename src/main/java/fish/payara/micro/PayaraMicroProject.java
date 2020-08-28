@@ -32,7 +32,7 @@ public abstract class PayaraMicroProject implements Project {
 
     private final Project project;
 
-    private PsiFile buildFile;
+    private final PsiFile buildFile;
 
     protected PayaraMicroProject(Project project, PsiFile buildFile) {
         this.project = project;
@@ -56,7 +56,7 @@ public abstract class PayaraMicroProject implements Project {
     public abstract String getStopCommand();
 
     public abstract String getBundleCommand();
-    
+
     @Override
     public String getName() {
         return project.getName();

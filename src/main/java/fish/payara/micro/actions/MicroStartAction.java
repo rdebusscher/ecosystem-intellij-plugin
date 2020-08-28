@@ -30,13 +30,13 @@ import static java.util.logging.Level.WARNING;
 public class MicroStartAction extends MicroAction {
 
     private static final Logger LOG = Logger.getLogger(MicroStartAction.class.getName());
-    
+
     @Override
     public void onAction(PayaraMicroProject project) {
         String projectName;
         projectName = project.getProjectName();
         JBTerminalWidget terminal = getTerminal(project, projectName + " instance");
-        if (terminal!= null) {
+        if (terminal != null) {
             executeCommand(terminal, project.getStartCommand(false));
         } else {
             LOG.log(WARNING, "Shell window for {0} is not available.", projectName);

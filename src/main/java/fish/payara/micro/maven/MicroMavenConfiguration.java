@@ -33,8 +33,13 @@ public class MicroMavenConfiguration extends MavenRunConfiguration {
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         MavenRunnerParameters parameters = this.getRunnerParameters();
         if (parameters != null && parameters.getGoals().isEmpty()) {
-            parameters.getGoals().add("fish.payara.maven.plugins:payara-micro-maven-plugin:RELEASE:start");
-            parameters.getGoals().add("-DdeployWar=true");
+            parameters.getGoals().add(String.format(
+                    "%s:%s:RELEASE:%s",
+                    MavenProject.MICRO_GROUP_ID,
+                    MavenProject.MICRO_ARTIFACT_ID,
+                    MavenProject.START_GOAL
+            ));
+//            parameters.getGoals().add(MavenProject.DEPLOY_WAR_PROPERTY);
         }
         return super.getConfigurationEditor();
     }

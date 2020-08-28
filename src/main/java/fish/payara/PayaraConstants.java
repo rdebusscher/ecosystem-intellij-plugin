@@ -16,10 +16,14 @@
  */
 package fish.payara;
 
+import com.intellij.openapi.util.IconLoader;
 import java.io.File;
 import java.util.regex.Pattern;
+import javax.swing.Icon;
 
 public interface PayaraConstants {
+
+    Icon PAYARA_ICON = IconLoader.getIcon("/icons/payara.svg");
 
     Pattern PAYARA_JAR_PATTERN = Pattern.compile("payara-.*\\.jar");
 

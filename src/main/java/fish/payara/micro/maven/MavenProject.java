@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.logging.Level;
+import static java.util.logging.Level.SEVERE;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -54,21 +54,25 @@ public class MavenProject extends PayaraMicroProject {
     private static final String PLUGIN = "plugin";
     private static final String GROUP_ID = "groupId";
     private static final String ARTIFACT_ID = "artifactId";
-    private static final String MICRO_GROUP_ID = "fish.payara.maven.plugins";
-    private static final String MICRO_ARTIFACT_ID = "payara-micro-maven-plugin";
-    private static final String START_GOAL = "payara-micro:start";
-    private static final String RELOAD_GOAL = "payara-micro:reload";
-    private static final String STOP_GOAL = "payara-micro:stop";
-    private static final String BUNDLE_GOAL = "payara-micro:bundle";
+    private static final String NAME = "name";
+    public static final String MICRO_GROUP_ID = "fish.payara.maven.plugins";
+    public static final String MICRO_ARTIFACT_ID = "payara-micro-maven-plugin";
+    public static final String START_GOAL = "start";
+    private static final String RELOAD_GOAL = "reload";
+    private static final String STOP_GOAL = "stop";
+    private static final String BUNDLE_GOAL = "bundle";
     private static final String WAR_EXPLODE_GOAL = "war:exploded";
     private static final String COMPILE_GOAL = "compiler:compile";
     private static final String RESOURCES_GOAL = "resources:resources";
+    private static final String INSTALL_GOAL = "install";
 
     private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
     private static final String BUILD_FILE = "pom.xml";
     private static final String USE_UBER_JAR = "useUberJar";
     private static final String EXPLODED = "exploded";
     private static final String DEPLOY_WAR = "deployWar";
+    private static final String EXPLODED_PROPERTY = "-Dexploded=true";
+    public static final String DEPLOY_WAR_PROPERTY = "-DdeployWar=true";
     private boolean useUberJar, exploded, deployWar;
 
     @Override
@@ -79,50 +83,57 @@ public class MavenProject extends PayaraMicroProject {
         } else if (exploded) {
             cmd = getStartExplodedWarCommand();
         } else {
-            cmd = String.format("mvn %s",
-                    START_GOAL
+            cmd = String.format("mvn %s:%s:%s",
+                    MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
             );
         }
         return debug ? cmd + DEBUG_PROPERTY : cmd;
     }
 
     private String getStartUberJarCommand() {
-        return String.format("mvn install %s %s",
-                BUNDLE_GOAL,
-                START_GOAL
+        return String.format("mvn %s %s:%s:%s %s:%s:%s",
+                INSTALL_GOAL,
+                MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL,
+                MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
         );
     }
 
     private String getStartExplodedWarCommand() {
-        return String.format("mvn -Dexploded=true -DdeployWar=true %s %s %s %s",
+        return String.format("mvn %s %s %s %s:%s:%s %s %s",
                 RESOURCES_GOAL,
                 COMPILE_GOAL,
                 WAR_EXPLODE_GOAL,
-                START_GOAL
+                MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL,
+                EXPLODED_PROPERTY,
+                DEPLOY_WAR_PROPERTY
         );
     }
 
     @Override
     public String getReloadCommand() {
-        return String.format("mvn %s %s %s %s",
+        if (!exploded && useUberJar) {
+            throw new IllegalStateException("Reload task is only functional for exploded war artifacts.");
+        }
+        return String.format("mvn %s %s %s %s:%s:%s",
                 RESOURCES_GOAL,
                 COMPILE_GOAL,
                 WAR_EXPLODE_GOAL,
-                RELOAD_GOAL
+                MICRO_GROUP_ID, MICRO_ARTIFACT_ID, RELOAD_GOAL
         );
     }
 
     @Override
     public String getStopCommand() {
-        return String.format("mvn %s",
-                STOP_GOAL
+        return String.format("mvn %s:%s:%s",
+                MICRO_GROUP_ID, MICRO_ARTIFACT_ID, STOP_GOAL
         );
     }
 
     @Override
     public String getBundleCommand() {
-        return String.format("mvn install %s",
-                BUNDLE_GOAL
+        return String.format("mvn %s %s:%s:%s",
+                INSTALL_GOAL,
+                MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL
         );
     }
 
@@ -140,40 +151,44 @@ public class MavenProject extends PayaraMicroProject {
     }
 
     /**
-     * Return the project name
+     * Return the project name from pom.xml artifactId
      *
      * @return
      */
     @Override
     public String getProjectName() {
+        String artifactId = null;
+        String name = null;
         try {
             Node pomRoot = getPomRootNode(super.getBuildFile());
             NodeList childNodes = pomRoot.getChildNodes();
             for (int childNodeIndex = 0; childNodeIndex < childNodes.getLength(); childNodeIndex++) {
                 Node childNode = childNodes.item(childNodeIndex);
-                if (childNode.getNodeName().equals("artifactId")) {
-                    if (childNode.getTextContent() != null) {
-                        return childNode.getTextContent();
-                    }
+                if (childNode.getNodeName().equals(NAME)
+                        && childNode.getTextContent() != null) {
+                    name = childNode.getTextContent();
+                    break;
+                }
+                if (childNode.getNodeName().equals(ARTIFACT_ID)
+                        && childNode.getTextContent() != null) {
+                    artifactId = childNode.getTextContent();
                 }
             }
+
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-            throw new IllegalStateException(ex);
+            LOG.log(SEVERE, super.getBuildFile().getVirtualFile().getPath(), ex);
         }
-        return null;
+        if (name != null) {
+            return name;
+        } else {
+            return artifactId;
+        }
     }
 
-    private static Node getPomRootNode(PsiFile pomFile) throws ParserConfigurationException, SAXException, IOException {
-        File inputFile = new File(pomFile.getVirtualFile().getCanonicalPath());
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document buildDocument = builder.parse(inputFile);
-        buildDocument.getDocumentElement().normalize();
-        Node root = buildDocument.getDocumentElement();
-        return root;
-    }
-
+    /**
+     * @param project
+     * @return the pom.xml file
+     */
     private static PsiFile getPomFile(Project project) {
         PsiFile[] poms = FilenameIndex.getFilesByName(project, BUILD_FILE, GlobalSearchScope.projectScope(project));
         for (PsiFile pom : poms) {
@@ -184,6 +199,10 @@ public class MavenProject extends PayaraMicroProject {
         return null;
     }
 
+    /**
+     * @param pomFile the pom.xml file
+     * @return true if pom.xml file includes Payara Micro Maven plugin
+     */
     private static boolean isValidPom(PsiFile pomFile) {
         try {
             Node pomRoot = getPomRootNode(pomFile);
@@ -191,10 +210,88 @@ public class MavenProject extends PayaraMicroProject {
                     .stream()
                     .anyMatch(MavenProject::isMicroPlugin);
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            LOG.log(Level.SEVERE, null, ex);
+            LOG.log(SEVERE, null, ex);
         }
         return false;
 
+    }
+
+    /**
+     * @param buildNode
+     * @return true if pom.xml file includes Payara Micro Maven plugin
+     */
+    private static boolean isMicroPlugin(Node buildNode) {
+        return getMicroPluginNode(buildNode) != null;
+    }
+
+    private static Node getMicroPluginNode(Node buildNode) {
+        NodeList buildChildNodes = buildNode.getChildNodes();
+        for (int buildChildNodeIndex = 0; buildChildNodeIndex < buildChildNodes.getLength(); buildChildNodeIndex++) {
+            Node buildChildNode = buildChildNodes.item(buildChildNodeIndex);
+            for (Node pluginNode : getPluginNodes(buildChildNode)) {
+                NodeList pluginChildNodes = pluginNode.getChildNodes();
+                boolean microGroupId = false;
+                boolean microArtifactId = false;
+                for (int i = 0; i < pluginChildNodes.getLength(); i++) {
+                    Node node = pluginChildNodes.item(i);
+                    if (node.getNodeName().equals(GROUP_ID)
+                            && node.getTextContent().equals(MICRO_GROUP_ID)) {
+                        microGroupId = true;
+                    } else if (node.getNodeName().equals(ARTIFACT_ID)
+                            && node.getTextContent().equals(MICRO_ARTIFACT_ID)) {
+                        microArtifactId = true;
+                    }
+                    if (microGroupId && microArtifactId) {
+                        return pluginNode;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parse the pom.xml to read the configuration of Payara Micro Maven plugin.
+     */
+    private void parsePom() {
+        try {
+            Node pomRoot = getPomRootNode(super.getBuildFile());
+            for (Node buildNode : getBuildNodes(pomRoot)) {
+                Node plugin = getMicroPluginNode(buildNode);
+                NodeList pluginChildNodes = plugin.getChildNodes();
+                for (int i = 0; i < pluginChildNodes.getLength(); i++) {
+                    Node configurationNode = pluginChildNodes.item(i);
+                    if (configurationNode.getNodeName().equals("configuration")) {
+                        NodeList configurationChildNodes = configurationNode.getChildNodes();
+                        for (int j = 0; j < configurationChildNodes.getLength(); j++) {
+                            Node param = configurationChildNodes.item(j);
+                            if (param.getNodeName().equals(USE_UBER_JAR)
+                                    && param.getTextContent().equals("true")) {
+                                useUberJar = true;
+                            } else if (param.getNodeName().equals(EXPLODED)
+                                    && param.getTextContent().equals("true")) {
+                                exploded = true;
+                            } else if (param.getNodeName().equals(DEPLOY_WAR)
+                                    && param.getTextContent().equals("true")) {
+                                deployWar = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            LOG.log(SEVERE, super.getBuildFile().getVirtualFile().getPath(), ex);
+        }
+    }
+
+    private static Node getPomRootNode(PsiFile pomFile) throws ParserConfigurationException, SAXException, IOException {
+        File inputFile = new File(pomFile.getVirtualFile().getCanonicalPath());
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document buildDocument = builder.parse(inputFile);
+        buildDocument.getDocumentElement().normalize();
+        Node root = buildDocument.getDocumentElement();
+        return root;
     }
 
     private static List<Node> getBuildNodes(Node pomRoot) {
@@ -254,67 +351,6 @@ public class MavenProject extends PayaraMicroProject {
             }
         }
         return plugins;
-    }
-
-    private static boolean isMicroPlugin(Node buildNode) {
-        return getMicroPluginNode(buildNode) != null;
-    }
-
-    private static Node getMicroPluginNode(Node buildNode) {
-        NodeList buildChildNodes = buildNode.getChildNodes();
-        for (int buildChildNodeIndex = 0; buildChildNodeIndex < buildChildNodes.getLength(); buildChildNodeIndex++) {
-            Node buildChildNode = buildChildNodes.item(buildChildNodeIndex);
-            for (Node pluginNode : getPluginNodes(buildChildNode)) {
-                NodeList pluginChildNodes = pluginNode.getChildNodes();
-                boolean microGroupId = false;
-                boolean microArtifactId = false;
-                for (int i = 0; i < pluginChildNodes.getLength(); i++) {
-                    Node node = pluginChildNodes.item(i);
-                    if (node.getNodeName().equals(GROUP_ID)
-                            && node.getTextContent().equals(MICRO_GROUP_ID)) {
-                        microGroupId = true;
-                    } else if (node.getNodeName().equals(ARTIFACT_ID)
-                            && node.getTextContent().equals(MICRO_ARTIFACT_ID)) {
-                        microArtifactId = true;
-                    }
-                    if (microGroupId && microArtifactId) {
-                        return pluginNode;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private void parsePom() {
-        try {
-            Node pomRoot = getPomRootNode(super.getBuildFile());
-            for (Node buildNode : getBuildNodes(pomRoot)) {
-                Node plugin = getMicroPluginNode(buildNode);
-                NodeList pluginChildNodes = plugin.getChildNodes();
-                for (int i = 0; i < pluginChildNodes.getLength(); i++) {
-                    Node configurationNode = pluginChildNodes.item(i);
-                    if (configurationNode.getNodeName().equals("configuration")) {
-                        NodeList configurationChildNodes = configurationNode.getChildNodes();
-                        for (int j = 0; j < configurationChildNodes.getLength(); j++) {
-                            Node param = configurationChildNodes.item(j);
-                            if (param.getNodeName().equals(USE_UBER_JAR)
-                                    && param.getTextContent().equals("true")) {
-                                useUberJar = true;
-                            } else if (param.getNodeName().equals(EXPLODED)
-                                    && param.getTextContent().equals("true")) {
-                                exploded = true;
-                            } else if (param.getNodeName().equals(DEPLOY_WAR)
-                                    && param.getTextContent().equals("true")) {
-                                deployWar = true;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, null, ex);
-        }
     }
 
 }

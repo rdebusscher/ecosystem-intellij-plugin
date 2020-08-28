@@ -30,11 +30,11 @@ import com.intellij.javaee.oss.server.JavaeeIntegration;
 import static com.intellij.javaee.oss.server.JavaeeIntegration.checkDir;
 import com.intellij.javaee.oss.server.JavaeePersistentData;
 import com.intellij.javaee.run.configuration.CommonModel;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.util.text.StringUtil;
 import fish.payara.PayaraBundle;
 import org.jetbrains.annotations.NotNull;
 import static fish.payara.PayaraConstants.PAYARA_BIN_DIRECTORY_NAME;
+import static fish.payara.PayaraConstants.PAYARA_ICON;
 import static fish.payara.PayaraConstants.PAYARA_JAR_PATTERN;
 import static fish.payara.PayaraConstants.PAYARA_MODULES_DIRECTORY_NAME;
 import java.io.File;
@@ -63,7 +63,7 @@ public class PayaraServerIntegration extends JavaeeIntegration {
     @NotNull
     @Override
     public Icon getIcon() {
-        return IconLoader.getIcon("/icons/payara.svg");
+        return PAYARA_ICON;
     }
 
     @NotNull

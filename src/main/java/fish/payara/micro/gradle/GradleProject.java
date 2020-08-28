@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.logging.Level;
+import static java.util.logging.Level.SEVERE;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,11 +45,12 @@ public class GradleProject extends PayaraMicroProject {
     private static final String MICRO_PLUGIN_ID = "fish.payara.micro-gradle-plugin";
     private static final String MICRO_GROUP_ID = "fish.payara.gradle.plugins";
     private static final String MICRO_ARTIFACT_ID = "payara-micro-gradle-plugin";
-    private static final String START_GOAL = "microStart";
+    public static final String START_GOAL = "microStart";
     private static final String RELOAD_GOAL = "microReload";
     private static final String STOP_GOAL = "microStop";
     private static final String BUNDLE_GOAL = "microBundle";
     private static final String WAR_EXPLODE_GOAL = "warExplode";
+    private static final String INSTALL_GOAL = "install";
     private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
     private static final String SETTINGS_FILE = "settings.gradle";
     private static final String ROOT_PROJECT_NAME = "rootProject.name";
@@ -57,7 +58,9 @@ public class GradleProject extends PayaraMicroProject {
     private static final String USE_UBER_JAR = "useUberJar";
     private static final String EXPLODED = "exploded";
     private static final String DEPLOY_WAR = "deployWar";
-    
+    private static final String EXPLODED_PROPERTY = "-DpayaraMicro.exploded=true";
+    public static final String DEPLOY_WAR_PROPERTY = "-DpayaraMicro.deployWar=true";
+
     private boolean useUberJar, exploded, deployWar;
 
     @Override
@@ -83,14 +86,19 @@ public class GradleProject extends PayaraMicroProject {
     }
 
     public String getStartExplodedWarCommand() {
-        return String.format("gradle %s  %s -DpayaraMicro.exploded=true -DpayaraMicro.deployWar=true",
+        return String.format("gradle %s %s %s %s",
                 WAR_EXPLODE_GOAL,
-                START_GOAL
+                START_GOAL,
+                EXPLODED_PROPERTY,
+                DEPLOY_WAR_PROPERTY
         );
     }
 
     @Override
     public String getReloadCommand() {
+        if (!exploded && useUberJar) {
+            throw new IllegalStateException("Reload task is only functional for exploded war artifacts.");
+        }
         return String.format("gradle %s %s",
                 WAR_EXPLODE_GOAL,
                 RELOAD_GOAL
@@ -106,7 +114,8 @@ public class GradleProject extends PayaraMicroProject {
 
     @Override
     public String getBundleCommand() {
-        return String.format("gradle install %s",
+        return String.format("gradle %s %s",
+                INSTALL_GOAL,
                 BUNDLE_GOAL
         );
     }
@@ -124,6 +133,10 @@ public class GradleProject extends PayaraMicroProject {
         parseBuildFile();
     }
 
+    /**
+     * @param project
+     * @return the build.gradle file
+     */
     private static PsiFile getBuildFile(Project project) {
         PsiFile[] buildFiles = FilenameIndex.getFilesByName(project, BUILD_FILE, GlobalSearchScope.projectScope(project));
         for (PsiFile buildFile : buildFiles) {
@@ -135,9 +148,7 @@ public class GradleProject extends PayaraMicroProject {
     }
 
     /**
-     * Return the project name
-     *
-     * @return
+     * @return the project name from settings.properties file
      */
     @Override
     public String getProjectName() {
@@ -153,23 +164,31 @@ public class GradleProject extends PayaraMicroProject {
                     projectName = name.replaceAll("^[\"']+|[\"']+$", "");
                 }
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, "Could not read " + settingsFile.toString(), ex);
+                LOG.log(SEVERE, settingsFile.getPath(), ex);
             }
         }
         return projectName;
     }
 
+    /**
+     * @param buildFile the build.gradle file
+     * @return true if build.gradle file includes Payara Micro Gradle plugin
+     */
     private static boolean isValidBuild(PsiFile buildFile) {
         try {
             return Files.lines(Paths.get(buildFile.getVirtualFile().getPath()))
                     .anyMatch(line -> line.contains(MICRO_PLUGIN_ID) || line.contains(MICRO_ARTIFACT_ID));
         } catch (IOException ex) {
-            Logger.getLogger(GradleProject.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(SEVERE, buildFile.getVirtualFile().getPath(), ex);
         }
         return false;
     }
-    
-    private boolean parseBuildFile() {
+
+    /**
+     * Parse the build.gradle to read the configuration of Payara Micro Gradle
+     * plugin.
+     */
+    private void parseBuildFile() {
         String content;
         try {
             content = new String(
@@ -186,29 +205,25 @@ public class GradleProject extends PayaraMicroProject {
             for (int i = 0; i < matcher.groupCount(); i++) {
                 String line = matcher.group(i);
                 if (line.contains(USE_UBER_JAR)) {
-                    useUberJar = getPropertyValue(line, USE_UBER_JAR);
+                    useUberJar = getFlagPropertyValue(line, USE_UBER_JAR);
                 }
                 if (line.contains(EXPLODED)) {
-                    exploded = getPropertyValue(line, EXPLODED);
+                    exploded = getFlagPropertyValue(line, EXPLODED);
                 }
                 if (line.contains(DEPLOY_WAR)) {
-                    deployWar = getPropertyValue(line, DEPLOY_WAR);
+                    deployWar = getFlagPropertyValue(line, DEPLOY_WAR);
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(GradleProject.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(SEVERE, super.getBuildFile().getVirtualFile().getPath(), ex);
         }
-        return false;
     }
-    
-    private boolean getPropertyValue(String line, String match) {
+
+    private boolean getFlagPropertyValue(String line, String match) {
         String[] pairs = line.split("=");
-        if (pairs.length == 2
+        return pairs.length == 2
                 && pairs[0].trim().equals(match)
-                && pairs[1].trim().equals("true")) {
-            return true;
-        }
-        return false;
+                && pairs[1].trim().equals("true");
     }
 
 }

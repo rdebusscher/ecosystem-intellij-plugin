@@ -34,7 +34,7 @@ public class MicroStopAction extends MicroAction {
         String projectName;
         projectName = project.getProjectName();
         JBTerminalWidget terminal = getTerminal(project, projectName);
-        if (terminal!= null) {
+        if (terminal != null) {
             executeCommand(terminal, project.getStopCommand());
         } else {
             LOG.log(WARNING, "Shell window for {0} is not available.", projectName);

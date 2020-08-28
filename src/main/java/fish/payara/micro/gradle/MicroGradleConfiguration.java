@@ -34,10 +34,10 @@ public class MicroGradleConfiguration extends GradleRunConfiguration {
     @Override
     public SettingsEditor<ExternalSystemRunConfiguration> getConfigurationEditor() {
         ExternalSystemTaskExecutionSettings settings = super.getSettings();
-        if(settings.getTaskNames().isEmpty()
-        && settings.getScriptParameters().isEmpty()) {
-            settings.getTaskNames().add("microStart");
-            settings.setScriptParameters("-DpayaraMicro.deployWar=true");
+        if (settings.getTaskNames().isEmpty()
+                && settings.getScriptParameters().isEmpty()) {
+            settings.getTaskNames().add(GradleProject.START_GOAL);
+//            settings.setScriptParameters(GradleProject.DEPLOY_WAR_PROPERTY);
         }
         return super.getConfigurationEditor();
     }

@@ -16,7 +16,12 @@
  */
 package fish.payara.micro.actions;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.terminal.JBTerminalWidget;
+import fish.payara.PayaraConstants;
 import fish.payara.micro.PayaraMicroProject;
 import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
@@ -31,13 +36,27 @@ public class MicroReloadAction extends MicroAction {
 
     @Override
     public void onAction(PayaraMicroProject project) {
-        String projectName;
-        projectName = project.getProjectName();
-        JBTerminalWidget terminal = getTerminal(project, projectName);
-        if (terminal != null) {
-            executeCommand(terminal, project.getReloadCommand());
-        } else {
-            LOG.log(WARNING, "Shell window for {0} is not available.", projectName);
+        try {
+            String projectName = project.getProjectName();
+            String command = project.getReloadCommand();
+
+            JBTerminalWidget terminal = getTerminal(project, projectName);
+            if (terminal != null) {
+                executeCommand(terminal, command);
+            } else {
+                LOG.log(WARNING, "Shell window for {0} is not available.", projectName);
+            }
+        } catch (IllegalStateException ise) {
+            Notifications.Bus.notify(
+                    new Notification(
+                            "Payara Micro reload",
+                            PayaraConstants.PAYARA_ICON,
+                            "Payara Micro reload not enabled",
+                            "",
+                            ise.getMessage(),
+                            NotificationType.WARNING,
+                            NotificationListener.URL_OPENING_LISTENER
+                    ), project);
         }
     }
 

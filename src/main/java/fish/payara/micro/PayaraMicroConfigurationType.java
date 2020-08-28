@@ -20,7 +20,7 @@ import fish.payara.micro.gradle.MicroGradleConfigurationFactory;
 import fish.payara.micro.maven.MicroMavenConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
-import com.intellij.openapi.util.IconLoader;
+import static fish.payara.PayaraConstants.PAYARA_ICON;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -40,7 +40,7 @@ public class PayaraMicroConfigurationType implements ConfigurationType {
 
     @Override
     public Icon getIcon() {
-        return IconLoader.getIcon("/icons/payara.svg");
+        return PAYARA_ICON;
     }
 
     @NotNull

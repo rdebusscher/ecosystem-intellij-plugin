@@ -62,7 +62,7 @@ public abstract class MicroAction extends AnAction {
                 LOG.warning("Unable to resolve Payara Micro project type.");
                 return;
             }
-            if(microProject != null) {
+            if (microProject != null) {
                 onAction(microProject);
             } else {
                 onAction(gradleProject);
@@ -115,8 +115,8 @@ public abstract class MicroAction extends AnAction {
             if (connector != null) {
                 connector.write(command);
                 connector.write(widget.getTerminalStarter().getCode(KeyEvent.VK_ENTER, 0));
-            } else if(widget instanceof ShellTerminalWidget) {
-                ((ShellTerminalWidget)widget).executeCommand(command);
+            } else if (widget instanceof ShellTerminalWidget) {
+                ((ShellTerminalWidget) widget).executeCommand(command);
             }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, null, ex);
