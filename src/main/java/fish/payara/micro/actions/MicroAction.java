@@ -16,16 +16,20 @@
  */
 package fish.payara.micro.actions;
 
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationListener;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.terminal.JBTerminalWidget;
 import com.intellij.ui.content.Content;
 import com.jediterm.terminal.TtyConnector;
+import fish.payara.PayaraConstants;
 import fish.payara.micro.PayaraMicroProject;
 import fish.payara.micro.gradle.GradleProject;
 import fish.payara.micro.maven.MavenProject;
@@ -63,6 +67,16 @@ public abstract class MicroAction extends AnAction {
             PayaraMicroProject gradleProject = GradleProject.getInstance(project);
             if (microProject == null && gradleProject == null) {
                 LOG.warning("Unable to resolve Payara Micro project type.");
+                Notifications.Bus.notify(
+                        new Notification(
+                                "Payara Micro Action",
+                                PayaraConstants.PAYARA_ICON,
+                                e.getPresentation().getDescription(),
+                                "",
+                                "Unable to resolve Payara Micro project type.",
+                                NotificationType.WARNING,
+                                NotificationListener.URL_OPENING_LISTENER
+                        ), project);
                 return;
             }
             if (microProject != null) {
