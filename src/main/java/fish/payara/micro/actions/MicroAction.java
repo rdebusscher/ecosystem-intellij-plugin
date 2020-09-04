@@ -21,6 +21,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.terminal.JBTerminalWidget;
 import com.intellij.ui.content.Content;
@@ -46,6 +47,8 @@ import java.util.logging.Logger;
 public abstract class MicroAction extends AnAction {
 
     private static final Logger LOG = Logger.getLogger(MicroAction.class.getName());
+
+    private static final String TOOL_WINDOW_ID = "Terminal";
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
@@ -76,14 +79,16 @@ public abstract class MicroAction extends AnAction {
 
     public JBTerminalWidget getTerminal(Project project, String tabName) {
         ToolWindowManager windowManager = ToolWindowManager.getInstance(project);
-        ToolWindow terminalWindow = windowManager.getToolWindow("Terminal");
-
-        JBTerminalWidget widget = findTerminal(terminalWindow, tabName);
-        if (widget != null) {
-            return widget;
+        ToolWindow terminalWindow = windowManager.getToolWindow(TOOL_WINDOW_ID);
+        if (terminalWindow != null) {
+            JBTerminalWidget widget = findTerminal(terminalWindow, tabName);
+            if (widget != null) {
+                return widget;
+            }
+            createTerminal(project, tabName);
+            return findTerminal(terminalWindow, tabName);
         }
-        createTerminal(project, tabName);
-        return findTerminal(terminalWindow, tabName);
+        return null;
     }
 
     private void createTerminal(Project project, String tabName) {

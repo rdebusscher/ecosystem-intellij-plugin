@@ -32,15 +32,31 @@ public class MicroMavenConfiguration extends MavenRunConfiguration {
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
         MavenRunnerParameters parameters = this.getRunnerParameters();
-        if (parameters != null && parameters.getGoals().isEmpty()) {
-            parameters.getGoals().add(MavenProject.INSTALL_GOAL);
-            parameters.getGoals().add(String.format(
-                    "%s:%s:RELEASE:%s",
-                    MavenProject.MICRO_GROUP_ID,
-                    MavenProject.MICRO_ARTIFACT_ID,
-                    MavenProject.START_GOAL
-            ));
-//            parameters.getGoals().add(MavenProject.DEPLOY_WAR_PROPERTY);
+
+        if (parameters != null) {
+            if (parameters.getWorkingDirPath().isEmpty()
+                    && super.getProject().getBasePath() != null) {
+                parameters.setWorkingDirPath(super.getProject().getBasePath());
+            }
+            if (parameters.getGoals().isEmpty()) {
+                MavenProject mavenProject = MavenProject.getInstance(super.getProject());
+                if (mavenProject == null) {
+                    parameters.getGoals().add(String.format(
+                            "%s:%s:%s:%s %s",
+                            MavenProject.MICRO_GROUP_ID,
+                            MavenProject.MICRO_ARTIFACT_ID,
+                            MavenProject.MICRO_VERSION,
+                            MavenProject.START_GOAL,
+                            MavenProject.DEPLOY_WAR_PROPERTY
+                    ));
+                } else {
+                    parameters.getGoals().add(String.format(
+                            "%s:%s",
+                            MavenProject.MICRO_PLUGIN,
+                            MavenProject.START_GOAL
+                    ));
+                }
+            }
         }
         return super.getConfigurationEditor();
     }

@@ -44,7 +44,6 @@ public class GradleProject extends PayaraMicroProject {
     private static final Logger LOG = Logger.getLogger(GradleProject.class.getName());
 
     private static final String MICRO_PLUGIN_ID = "fish.payara.micro-gradle-plugin";
-    private static final String MICRO_GROUP_ID = "fish.payara.gradle.plugins";
     private static final String MICRO_ARTIFACT_ID = "payara-micro-gradle-plugin";
     public static final String START_GOAL = "microStart";
     private static final String RELOAD_GOAL = "microReload";
@@ -58,11 +57,10 @@ public class GradleProject extends PayaraMicroProject {
     private static final String BUILD_FILE = "build.gradle";
     private static final String USE_UBER_JAR = "useUberJar";
     private static final String EXPLODED = "exploded";
-    private static final String DEPLOY_WAR = "deployWar";
     private static final String EXPLODED_PROPERTY = "-DpayaraMicro.exploded=true";
     public static final String DEPLOY_WAR_PROPERTY = "-DpayaraMicro.deployWar=true";
 
-    private boolean useUberJar, exploded, deployWar;
+    private boolean useUberJar, exploded;
 
     @Override
     public String getStartCommand(boolean debug) {
@@ -72,7 +70,7 @@ public class GradleProject extends PayaraMicroProject {
         } else if (exploded) {
             cmd = getStartExplodedWarCommand();
         } else {
-            cmd = String.format("gradle %s",
+            cmd = String.format("gradle %s %s %s",
                     BUILD_GOAL,
                     START_GOAL,
                     DEPLOY_WAR_PROPERTY
@@ -117,7 +115,7 @@ public class GradleProject extends PayaraMicroProject {
 
     @Override
     public String getBundleCommand() {
-        return String.format("gradle %s %s",
+        return String.format("gradle %s",
                 BUNDLE_GOAL
         );
     }
@@ -200,20 +198,17 @@ public class GradleProject extends PayaraMicroProject {
                             )
                     )
             );
-            String regex = "(?<=payaraMicro)(\\s*\\{)([^\\}]+)(?=\\})";
+            String regex = "(?<=payaraMicro)(\\s*\\{)([^\\}]+)(\\})";
             final Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
             Matcher matcher = pattern.matcher(content);
-            matcher.find();
-            for (int i = 0; i < matcher.groupCount(); i++) {
-                String line = matcher.group(i);
-                if (line.contains(USE_UBER_JAR)) {
-                    useUberJar = getFlagPropertyValue(line, USE_UBER_JAR);
-                }
-                if (line.contains(EXPLODED)) {
-                    exploded = getFlagPropertyValue(line, EXPLODED);
-                }
-                if (line.contains(DEPLOY_WAR)) {
-                    deployWar = getFlagPropertyValue(line, DEPLOY_WAR);
+            if (matcher.find()) {
+                for (String line : matcher.group(2).split("\n")) {
+                    if (line.contains(USE_UBER_JAR)) {
+                        useUberJar = getFlagPropertyValue(line, USE_UBER_JAR);
+                    }
+                    if (line.contains(EXPLODED)) {
+                        exploded = getFlagPropertyValue(line, EXPLODED);
+                    }
                 }
             }
         } catch (IOException ex) {

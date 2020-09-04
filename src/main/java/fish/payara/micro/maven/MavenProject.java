@@ -57,6 +57,8 @@ public class MavenProject extends PayaraMicroProject {
     private static final String NAME = "name";
     public static final String MICRO_GROUP_ID = "fish.payara.maven.plugins";
     public static final String MICRO_ARTIFACT_ID = "payara-micro-maven-plugin";
+    public static final String MICRO_VERSION = "1.1.0";
+    public static final String MICRO_PLUGIN = "payara-micro";
     public static final String START_GOAL = "start";
     private static final String RELOAD_GOAL = "reload";
     private static final String STOP_GOAL = "stop";
@@ -64,16 +66,15 @@ public class MavenProject extends PayaraMicroProject {
     private static final String WAR_EXPLODE_GOAL = "war:exploded";
     private static final String COMPILE_GOAL = "compiler:compile";
     private static final String RESOURCES_GOAL = "resources:resources";
-    public static final String INSTALL_GOAL = "install";
+    public static final String PACKAGE_GOAL = "package";
 
     private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
     private static final String BUILD_FILE = "pom.xml";
     private static final String USE_UBER_JAR = "useUberJar";
     private static final String EXPLODED = "exploded";
-    private static final String DEPLOY_WAR = "deployWar";
     private static final String EXPLODED_PROPERTY = "-Dexploded=true";
     public static final String DEPLOY_WAR_PROPERTY = "-DdeployWar=true";
-    private boolean useUberJar, exploded, deployWar;
+    private boolean useUberJar, exploded;
 
     @Override
     public String getStartCommand(boolean debug) {
@@ -83,8 +84,8 @@ public class MavenProject extends PayaraMicroProject {
         } else if (exploded) {
             cmd = getStartExplodedWarCommand();
         } else {
-            cmd = String.format("mvn %s:%s:%s",
-                    INSTALL_GOAL,
+            cmd = String.format("mvn %s %s:%s:%s",
+                    PACKAGE_GOAL,
                     MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
             );
         }
@@ -92,7 +93,7 @@ public class MavenProject extends PayaraMicroProject {
     }
 
     private String getStartUberJarCommand() {
-        return String.format("mvn %s %s:%s:%s %s:%s:%s",
+        return String.format("mvn %s:%s:%s %s:%s:%s",
                 MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL,
                 MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
         );
@@ -131,7 +132,7 @@ public class MavenProject extends PayaraMicroProject {
 
     @Override
     public String getBundleCommand() {
-        return String.format("mvn %s %s:%s:%s",
+        return String.format("mvn %s:%s:%s",
                 MICRO_GROUP_ID, MICRO_ARTIFACT_ID, BUNDLE_GOAL
         );
     }
@@ -160,20 +161,21 @@ public class MavenProject extends PayaraMicroProject {
         String name = null;
         try {
             Node pomRoot = getPomRootNode(super.getBuildFile());
-            NodeList childNodes = pomRoot.getChildNodes();
-            for (int childNodeIndex = 0; childNodeIndex < childNodes.getLength(); childNodeIndex++) {
-                Node childNode = childNodes.item(childNodeIndex);
-                if (childNode.getNodeName().equals(NAME)
-                        && childNode.getTextContent() != null) {
-                    name = childNode.getTextContent();
-                    break;
-                }
-                if (childNode.getNodeName().equals(ARTIFACT_ID)
-                        && childNode.getTextContent() != null) {
-                    artifactId = childNode.getTextContent();
+            if (pomRoot != null) {
+                NodeList childNodes = pomRoot.getChildNodes();
+                for (int childNodeIndex = 0; childNodeIndex < childNodes.getLength(); childNodeIndex++) {
+                    Node childNode = childNodes.item(childNodeIndex);
+                    if (childNode.getNodeName().equals(NAME)
+                            && childNode.getTextContent() != null) {
+                        name = childNode.getTextContent();
+                        break;
+                    }
+                    if (childNode.getNodeName().equals(ARTIFACT_ID)
+                            && childNode.getTextContent() != null) {
+                        artifactId = childNode.getTextContent();
+                    }
                 }
             }
-
         } catch (ParserConfigurationException | SAXException | IOException ex) {
             LOG.log(SEVERE, super.getBuildFile().getVirtualFile().getPath(), ex);
         }
@@ -257,6 +259,9 @@ public class MavenProject extends PayaraMicroProject {
             Node pomRoot = getPomRootNode(super.getBuildFile());
             for (Node buildNode : getBuildNodes(pomRoot)) {
                 Node plugin = getMicroPluginNode(buildNode);
+                if (plugin == null) {
+                    continue;
+                }
                 NodeList pluginChildNodes = plugin.getChildNodes();
                 for (int i = 0; i < pluginChildNodes.getLength(); i++) {
                     Node configurationNode = pluginChildNodes.item(i);
@@ -270,9 +275,6 @@ public class MavenProject extends PayaraMicroProject {
                             } else if (param.getNodeName().equals(EXPLODED)
                                     && param.getTextContent().equals("true")) {
                                 exploded = true;
-                            } else if (param.getNodeName().equals(DEPLOY_WAR)
-                                    && param.getTextContent().equals("true")) {
-                                deployWar = true;
                             }
                         }
                     }
@@ -284,32 +286,37 @@ public class MavenProject extends PayaraMicroProject {
     }
 
     private static Node getPomRootNode(PsiFile pomFile) throws ParserConfigurationException, SAXException, IOException {
-        File inputFile = new File(pomFile.getVirtualFile().getCanonicalPath());
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document buildDocument = builder.parse(inputFile);
-        buildDocument.getDocumentElement().normalize();
-        Node root = buildDocument.getDocumentElement();
+        Node root = null;
+        if (pomFile.getVirtualFile() != null) {
+            File inputFile = new File(pomFile.getVirtualFile().getCanonicalPath());
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document buildDocument = builder.parse(inputFile);
+            buildDocument.getDocumentElement().normalize();
+            root = buildDocument.getDocumentElement();
+        }
         return root;
     }
 
     private static List<Node> getBuildNodes(Node pomRoot) {
         List<Node> buildNodes = new ArrayList<>();
-        NodeList childNodes = pomRoot.getChildNodes();
-        for (int childNodeIndex = 0; childNodeIndex < childNodes.getLength(); childNodeIndex++) {
-            Node childNode = childNodes.item(childNodeIndex);
+        if (pomRoot != null) {
+            NodeList childNodes = pomRoot.getChildNodes();
+            for (int childNodeIndex = 0; childNodeIndex < childNodes.getLength(); childNodeIndex++) {
+                Node childNode = childNodes.item(childNodeIndex);
 
-            buildNodes.addAll(
-                    getProfileNodes(childNode)
-                            .stream()
-                            .map(Node::getChildNodes)
-                            .map(MavenProject::getBuildNode)
-                            .filter(Objects::nonNull)
-                            .collect(toList())
-            );
+                buildNodes.addAll(
+                        getProfileNodes(childNode)
+                                .stream()
+                                .map(Node::getChildNodes)
+                                .map(MavenProject::getBuildNode)
+                                .filter(Objects::nonNull)
+                                .collect(toList())
+                );
 
-            if (childNode.getNodeName().equals(BUILD)) {
-                buildNodes.add(childNode);
+                if (childNode.getNodeName().equals(BUILD)) {
+                    buildNodes.add(childNode);
+                }
             }
         }
         return buildNodes;
