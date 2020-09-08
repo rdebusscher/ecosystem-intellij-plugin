@@ -26,7 +26,6 @@ public class ModuleDescriptor {
 
     private String groupId;
     private String artifactId;
-    private MicroVersion version;
     private boolean autoBindHttp;
     private String contextRoot;
 
@@ -56,14 +55,6 @@ public class ModuleDescriptor {
         this.jdk = jdk;
     }
 
-    public MicroVersion getVersion() {
-        return version;
-    }
-
-    public void setVersion(MicroVersion version) {
-        this.version = version;
-    }
-
     public boolean isAutoBindHttp() {
         return autoBindHttp;
     }
@@ -85,7 +76,6 @@ public class ModuleDescriptor {
         return "ModuleDescriptor{" +
                 "groupId='" + groupId + '\'' +
                 ", artifactId='" + artifactId + '\'' +
-                ", version='" + version + '\'' +
                 ", autoBindHttp=" + autoBindHttp +
                 ", contextRoot='" + contextRoot + '\'' +
                 ", jdk=" + jdk +

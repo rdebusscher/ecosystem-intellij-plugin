@@ -19,7 +19,6 @@ package fish.payara.micro.project;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ui.JBUI;
@@ -35,7 +34,6 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
 
     private JTextField groupIdTextField;
     private JTextField artifactIdTextField;
-    private ComboBox<MicroVersion> versionsComboBox;
     private JCheckBox autoBindHttpCheckBox;
     private JTextField contextRootTextField;
 
@@ -85,20 +83,6 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
                 constraints
         );
 
-        versionsComboBox = new ComboBox<>(
-                VersionRepository.getInstance()
-                        .getMicroVersion()
-                        .toArray(new MicroVersion[0])
-        );
-        constraints.gridy++;
-        panel.add(
-                LabeledComponent.create(
-                        versionsComboBox,
-                        PayaraBundle.message("PayaraMicroProjectWizardStep.microVersion.label")
-                ),
-                constraints
-        );
-
         autoBindHttpCheckBox = new JCheckBox();
         constraints.gridy++;
         panel.add(
@@ -143,7 +127,6 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
     public void updateDataModel() {
         moduleDescriptor.setGroupId(getSelectedGroupId());
         moduleDescriptor.setArtifactId(getSelectedArtifactId());
-        moduleDescriptor.setVersion(getSelectedVersion());
         moduleDescriptor.setAutoBindHttp(isAutoBindHttpSelected());
         moduleDescriptor.setContextRoot(getContextRoot());
 
@@ -157,10 +140,6 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
 
     private String getSelectedArtifactId() {
         return StringUtil.sanitizeJavaIdentifier(artifactIdTextField.getText().trim());
-    }
-
-    private MicroVersion getSelectedVersion() {
-        return (MicroVersion) versionsComboBox.getSelectedItem();
     }
 
     private boolean isAutoBindHttpSelected() {
