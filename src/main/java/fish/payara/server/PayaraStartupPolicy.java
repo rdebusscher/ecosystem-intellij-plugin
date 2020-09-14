@@ -16,11 +16,15 @@
  */
 package fish.payara.server;
 
+import com.intellij.execution.configurations.DebuggingRunnerData;
+import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.util.EnvironmentVariable;
 import com.intellij.javaee.oss.server.JavaeeParameters;
 import com.intellij.javaee.oss.server.JavaeeStartupPolicy;
+import com.intellij.javaee.run.localRun.ExecutableObject;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
+import fish.payara.server.config.PayaraDebugConfig;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,4 +78,15 @@ public class PayaraStartupPolicy extends JavaeeStartupPolicy<PayaraLocalInstance
             params.add(model.DOMAIN_NAME);
         }
     }
+
+    @Override
+    protected void initSettings(final PayaraLocalInstanceModel model, final DebuggingRunnerData runnerData) {
+        runnerData.setDebugPort(PayaraDebugConfig.getPort(model));
+    }
+
+    @Override
+    protected void checkSettings(final PayaraLocalInstanceModel model, final DebuggingRunnerData runnerData) throws RuntimeConfigurationException {
+        PayaraDebugConfig.verifyDebugSettings(model, runnerData.getDebugPort());
+    }
+
 }
