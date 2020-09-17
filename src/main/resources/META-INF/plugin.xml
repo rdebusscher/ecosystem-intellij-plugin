@@ -23,6 +23,7 @@
         <configurationType implementation="fish.payara.micro.PayaraMicroConfigurationType"/>
         <configurationType implementation="fish.payara.server.PayaraServerConfiguration"/>
         <javaee.appServerIntegration implementation="fish.payara.server.PayaraServerIntegration"/>
+        <javaee.frameworkSupportContributor implementation="fish.payara.server.PayaraServerSupportContributor"/>
     </extensions>
     
     <actions>

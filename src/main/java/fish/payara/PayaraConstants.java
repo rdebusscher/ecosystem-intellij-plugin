@@ -33,6 +33,7 @@ public interface PayaraConstants {
 
     String ADMIN_VIRTUAL_SERVER_ID = "__asadmin";
     int DEFAULT_ADMIN_PORT = 4848;
+    int DEFAULT_DEBUG_PORT = 9009;
 
     String PAYARA_LOG_FILE_ID = "Payara";
 
