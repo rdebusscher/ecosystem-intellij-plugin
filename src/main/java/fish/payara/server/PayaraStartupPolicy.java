@@ -21,7 +21,6 @@ import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.util.EnvironmentVariable;
 import com.intellij.javaee.oss.server.JavaeeParameters;
 import com.intellij.javaee.oss.server.JavaeeStartupPolicy;
-import com.intellij.javaee.run.localRun.ExecutableObject;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.io.FileUtil;
 import fish.payara.server.config.PayaraDebugConfig;
