@@ -29,8 +29,6 @@ public class ModuleDescriptor {
     private boolean autoBindHttp;
     private String contextRoot;
 
-    private Sdk jdk;
-
     public String getGroupId() {
         return groupId;
     }
@@ -45,14 +43,6 @@ public class ModuleDescriptor {
 
     public void setArtifactId(String artifactId) {
         this.artifactId = artifactId;
-    }
-
-    public Sdk getJdk() {
-        return jdk;
-    }
-
-    public void setJdk(Sdk jdk) {
-        this.jdk = jdk;
     }
 
     public boolean isAutoBindHttp() {
@@ -78,7 +68,6 @@ public class ModuleDescriptor {
                 ", artifactId='" + artifactId + '\'' +
                 ", autoBindHttp=" + autoBindHttp +
                 ", contextRoot='" + contextRoot + '\'' +
-                ", jdk=" + jdk +
                 '}';
     }
 }

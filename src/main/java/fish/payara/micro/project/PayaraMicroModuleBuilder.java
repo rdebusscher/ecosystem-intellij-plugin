@@ -21,24 +21,25 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.util.lang.JavaVersion;
+import fish.payara.PayaraBundle;
 import fish.payara.PayaraConstants;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.idea.maven.model.MavenArchetype;
 import org.jetbrains.idea.maven.model.MavenId;
 import org.jetbrains.idea.maven.wizards.MavenModuleBuilderHelper;
 
 import javax.swing.*;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.intellij.openapi.module.JavaModuleType.JAVA_GROUP;
-import fish.payara.PayaraBundle;
 import static fish.payara.micro.project.PayaraMicroConstants.*;
-import org.jetbrains.idea.maven.model.MavenArchetype;
 
 public class PayaraMicroModuleBuilder extends JavaModuleBuilder {
 
@@ -98,14 +99,14 @@ public class PayaraMicroModuleBuilder extends JavaModuleBuilder {
     @Override
     public void setupRootModel(@NotNull ModifiableRootModel rootModel) throws ConfigurationException {
         super.setupRootModel(rootModel);
-        generateFromArchetype(rootModel.getProject());
+        generateFromArchetype(rootModel.getProject(), rootModel.getSdk());
     }
 
     /**
      * Generate Payara Micro project via
      * fish.payara.maven.archetypes:payara-micro-maven-archetype .
      */
-    private void generateFromArchetype(final Project project) {
+    private void generateFromArchetype(final Project project, Sdk jdk) {
         Map<String, String> props = new HashMap<>();
         String projectVersion = "1.0-SNAPSHOT";
         props.put(ARCHETYPE_INTERACTIVE_MODE, Boolean.FALSE.toString());
@@ -119,6 +120,12 @@ public class PayaraMicroModuleBuilder extends JavaModuleBuilder {
         props.put(PROP_CONTEXT_ROOT, moduleDescriptor.getContextRoot());
         props.put(PROP_ADD_PAYARA_API, Boolean.TRUE.toString());
 
+        JavaVersion javaVersion = JavaVersion.parse(jdk.getVersionString());
+        if (javaVersion.feature > 8) {
+            props.put(PROP_JDK_VERSION, String.valueOf(javaVersion.feature));
+        } else {
+            props.put(PROP_JDK_VERSION, "1." + String.valueOf(javaVersion.feature));
+        }
         MavenArchetype mavenArchetype = new MavenArchetype(
                 ARCHETYPE_GROUP_ID,
                 ARCHETYPE_ARTIFACT_ID,
