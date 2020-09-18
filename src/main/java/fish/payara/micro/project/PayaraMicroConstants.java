@@ -24,7 +24,7 @@ public interface PayaraMicroConstants {
 
     String ARCHETYPE_GROUP_ID = "fish.payara.maven.archetypes";
     String ARCHETYPE_ARTIFACT_ID = "payara-micro-maven-archetype";
-    String ARCHETYPE_VERSION = "RELEASE";
+    String ARCHETYPE_VERSION = "1.2.0";
     String ARCHETYPE_GROUP_ID_KEY = "archetypeGroupId";
     String ARCHETYPE_ARTIFACT_ID_KEY = "archetypeArtifactId";
     String ARCHETYPE_VERSION_KEY = "archetypeVersion";
