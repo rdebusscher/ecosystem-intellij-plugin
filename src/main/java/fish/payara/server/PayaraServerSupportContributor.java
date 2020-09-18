@@ -50,8 +50,7 @@ public class PayaraServerSupportContributor extends ServerSupportContributorBase
                     .filter(settings -> settings.getConfiguration().equals(commonModel))
                     .map(settings -> settings.getRunnerSettings(runner))
                     .filter(DebuggingRunnerData.class::isInstance)
-                    .map(DebuggingRunnerData.class::cast)
-                    .forEach(runnerData -> runnerData.setDebugPort(debugPort));
+                    .forEach(runnerData -> ((DebuggingRunnerData)runnerData).setDebugPort(debugPort));
         }
     }
 }
