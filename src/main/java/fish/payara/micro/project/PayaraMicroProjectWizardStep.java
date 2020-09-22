@@ -20,12 +20,16 @@ import com.intellij.ide.util.projectWizard.ModuleWizardStep;
 import com.intellij.ide.util.projectWizard.WizardContext;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.LabeledComponent;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.ui.JBUI;
 import fish.payara.PayaraBundle;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
 
@@ -36,6 +40,9 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
     private JTextField artifactIdTextField;
     private JCheckBox autoBindHttpCheckBox;
     private JTextField contextRootTextField;
+        
+    private static final Pattern GROUP_ID_PATTERN = Pattern.compile("^[a-z0-9_]+(\\.[a-z0-9_]+)*$");
+    private static final Pattern ARTIFACT_ID_PATTERN = Pattern.compile("^[a-z0-9_]+([\\-\\.][a-z0-9_]+)*$");
 
     public PayaraMicroProjectWizardStep(ModuleDescriptor moduleDescriptor, WizardContext context) {
         this.moduleDescriptor = moduleDescriptor;
@@ -110,19 +117,27 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
     public boolean validate() throws ConfigurationException {
         if (getSelectedGroupId().trim().isEmpty()) {
             throw new ConfigurationException(
-                    PayaraBundle.message("PayaraMicroProjectWizardStep.groupId.validation")
+                    PayaraBundle.message("PayaraMicroProjectWizardStep.groupId.empty")
+            );
+        } else if (!GROUP_ID_PATTERN.matcher(getSelectedGroupId().trim()).matches()) {
+            throw new ConfigurationException(
+                    PayaraBundle.message("PayaraMicroProjectWizardStep.groupId.pattern")
             );
         }
 
         if (getSelectedArtifactId().trim().isEmpty()) {
             throw new ConfigurationException(
-                    PayaraBundle.message("PayaraMicroProjectWizardStep.artifactId.validation")
+                    PayaraBundle.message("PayaraMicroProjectWizardStep.artifactId.empty")
+            );
+        } else if(!ARTIFACT_ID_PATTERN.matcher(getSelectedArtifactId().trim()).matches()) {
+            throw new ConfigurationException(
+                    PayaraBundle.message("PayaraMicroProjectWizardStep.artifactId.pattern")
             );
         }
 
         return true;
     }
-
+    
     @Override
     public void updateDataModel() {
         moduleDescriptor.setGroupId(getSelectedGroupId());
@@ -139,7 +154,7 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
     }
 
     private String getSelectedArtifactId() {
-        return StringUtil.sanitizeJavaIdentifier(artifactIdTextField.getText().trim());
+        return artifactIdTextField.getText().trim();
     }
 
     private boolean isAutoBindHttpSelected() {
@@ -147,6 +162,13 @@ public class PayaraMicroProjectWizardStep extends ModuleWizardStep {
     }
 
     private String getContextRoot() {
-        return contextRootTextField.getText().trim();
+        String contextRoot = contextRootTextField.getText().trim();
+        try {
+            return contextRoot.startsWith("/")
+                    ? '/' + URLEncoder.encode(contextRoot.substring(1), UTF_8.name())
+                    : URLEncoder.encode(contextRoot, UTF_8.name());
+        } catch (UnsupportedEncodingException ex) {
+            throw new IllegalStateException("Invalid context root value " + contextRootTextField.getText());
+        }
     }
 }
