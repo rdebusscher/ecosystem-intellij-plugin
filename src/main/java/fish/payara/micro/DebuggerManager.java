@@ -96,7 +96,7 @@ public class DebuggerManager {
         }
 
         @Override
-        public RunProfileState getState(Executor executor, ExecutionEnvironment environment) throws ExecutionException {
+        public RunProfileState getState(Executor executor, ExecutionEnvironment environment) {
             String host = DebuggerManagerImpl.LOCALHOST_ADDRESS_FALLBACK;
             String port = String.valueOf(DEFAULT_DEBUG_PORT);
             RemoteConnection connection = new RemoteConnection(true, host, port, true);

@@ -70,7 +70,7 @@ public class MicroGradleConfiguration extends GradleRunConfiguration {
             if (debugPort > 0) {
                 args.add(String.format(GradleProject.DEBUG_PROPERTY, debugPort));
                 getSettings().setScriptParameters(String.join(" ", args));
-            } else if (debugPort <= 0 && debugArgExist) {
+            } else if (debugArgExist) {
                 getSettings().setScriptParameters(
                         String.join(" ", args)
                 );
