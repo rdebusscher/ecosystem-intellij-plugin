@@ -17,6 +17,8 @@
 package fish.payara.micro.maven;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
+import com.intellij.execution.configurations.JavaParameters;
+import com.intellij.execution.configurations.RemoteConnectionCreator;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.project.Project;
@@ -59,6 +61,11 @@ public class MicroMavenConfiguration extends MavenRunConfiguration {
             }
         }
         return super.getConfigurationEditor();
+    }
+
+    @Override
+    public RemoteConnectionCreator createRemoteConnectionCreator(JavaParameters javaParameters) {
+        return new MicroMavenRemoteConnectionCreator(javaParameters, this);
     }
 
 }

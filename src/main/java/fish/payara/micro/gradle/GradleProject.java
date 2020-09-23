@@ -21,6 +21,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import fish.payara.PayaraConstants;
+import static fish.payara.PayaraConstants.DEFAULT_DEBUG_PORT;
 import fish.payara.micro.PayaraMicroProject;
 
 import java.io.File;
@@ -51,7 +53,8 @@ public class GradleProject extends PayaraMicroProject {
     private static final String BUNDLE_GOAL = "microBundle";
     private static final String WAR_EXPLODE_GOAL = "warExplode";
     public static final String BUILD_GOAL = "build";
-    private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
+    public static final String DEBUG_PROPERTY_NAME = "-DpayaraMicro.debug";
+    public static final String DEBUG_PROPERTY = DEBUG_PROPERTY_NAME + "=\"-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=%s\"";
     private static final String SETTINGS_FILE = "settings.gradle";
     private static final String ROOT_PROJECT_NAME = "rootProject.name";
     private static final String BUILD_FILE = "build.gradle";
@@ -76,7 +79,7 @@ public class GradleProject extends PayaraMicroProject {
                     DEPLOY_WAR_PROPERTY
             );
         }
-        return debug ? cmd + DEBUG_PROPERTY : cmd;
+        return debug ? cmd + ' ' + String.format(DEBUG_PROPERTY, DEFAULT_DEBUG_PORT) : cmd;
     }
 
     public String getStartUberJarCommand() {

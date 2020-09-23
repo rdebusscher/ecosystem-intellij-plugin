@@ -20,6 +20,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import static fish.payara.PayaraConstants.DEFAULT_DEBUG_PORT;
 import fish.payara.micro.PayaraMicroProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -67,8 +68,7 @@ public class MavenProject extends PayaraMicroProject {
     private static final String COMPILE_GOAL = "compiler:compile";
     private static final String RESOURCES_GOAL = "resources:resources";
     public static final String PACKAGE_GOAL = "package";
-
-    private static final String DEBUG_PROPERTY = " -Ddebug=-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009";
+    public static final String DEBUG_PROPERTY = "-Ddebug=\"-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=%s\"";
     private static final String BUILD_FILE = "pom.xml";
     private static final String USE_UBER_JAR = "useUberJar";
     private static final String EXPLODED = "exploded";
@@ -89,7 +89,7 @@ public class MavenProject extends PayaraMicroProject {
                     MICRO_GROUP_ID, MICRO_ARTIFACT_ID, START_GOAL
             );
         }
-        return debug ? cmd + DEBUG_PROPERTY : cmd;
+        return debug ? cmd + ' ' + String.format(DEBUG_PROPERTY, DEFAULT_DEBUG_PORT) : cmd;
     }
 
     private String getStartUberJarCommand() {
