@@ -17,10 +17,10 @@
 package fish.payara.server;
 
 import com.intellij.execution.configurations.ConfigurationTypeUtil;
+import com.intellij.javaee.appServers.run.configuration.ServerModel;
+import com.intellij.javaee.appServers.run.localRun.ExecutableObjectStartupPolicy;
 import com.intellij.javaee.oss.server.JavaeeConfigurationType;
 import com.intellij.javaee.oss.server.JavaeeIntegration;
-import com.intellij.javaee.run.configuration.ServerModel;
-import com.intellij.javaee.run.localRun.ExecutableObjectStartupPolicy;
 import org.jetbrains.annotations.NotNull;
 
 public class PayaraServerConfiguration extends JavaeeConfigurationType {

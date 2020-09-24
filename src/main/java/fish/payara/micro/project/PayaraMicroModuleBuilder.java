@@ -18,6 +18,8 @@ package fish.payara.micro.project;
 
 import com.intellij.ide.util.projectWizard.*;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.module.ModuleType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -38,21 +40,28 @@ import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.intellij.openapi.module.JavaModuleType.JAVA_GROUP;
+import com.intellij.openapi.module.StdModuleTypes;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import static fish.payara.micro.project.PayaraMicroConstants.*;
 
 public class PayaraMicroModuleBuilder extends JavaModuleBuilder {
 
     private final ModuleDescriptor moduleDescriptor = new ModuleDescriptor();
-
+    
     @Override
-    public ModuleType getModuleType() {
-        return PayaraMicroModuleType.getModuleType();
+    public final String getParentGroup() {
+        return MODULE_ID;
     }
 
     @Override
-    public String getParentGroup() {
-        return JAVA_GROUP;
+    public final int getWeight() {
+        return 10;
+    }
+
+    @Override
+    public ModuleType<?> getModuleType() {
+        return StdModuleTypes.JAVA;
     }
 
     @Override
@@ -70,11 +79,6 @@ public class PayaraMicroModuleBuilder extends JavaModuleBuilder {
     @Override
     public String getPresentableName() {
         return MODULE_TITLE;
-    }
-
-    @Override
-    public int getWeight() {
-        return 50;
     }
 
     @Nullable
@@ -138,10 +142,15 @@ public class PayaraMicroModuleBuilder extends JavaModuleBuilder {
                 moduleDescriptor.getArtifactId(),
                 projectVersion
         );
-        MavenModuleBuilderHelper helper = new MavenModuleBuilderHelper(
-                mavenId, null, null, false, false,
-                mavenArchetype, props, PayaraBundle.message("PayaraMicroModuleType.archetype.title"));
-        helper.configure(project, project.getBaseDir(), false);
+        ApplicationManager.getApplication().invokeLater(() -> {
+            ProgressManager.getInstance().runProcessWithProgressSynchronously(() -> {
+                MavenModuleBuilderHelper helper = new MavenModuleBuilderHelper(
+                        mavenId, null, null, false, false,
+                        mavenArchetype, props, PayaraBundle.message("PayaraMicroModuleType.archetype.title"));
+                helper.configure(project, project.getBaseDir(), false);
+            }, PayaraBundle.message("PayaraMicroProjectWizardStep.generating.project", this.getPresentableName()), true, null);
+            LocalFileSystem.getInstance().refresh(false);
+        }, ModalityState.current());
     }
 
 }

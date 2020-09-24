@@ -18,7 +18,7 @@ package fish.payara.server;
 
 import com.intellij.javaee.oss.server.JavaeeIntegration;
 import com.intellij.javaee.oss.server.JavaeeRunSettingsEditor;
-import com.intellij.javaee.run.configuration.view.JavaeeRunConfigurationEditorUtil;
+import com.intellij.javaee.appServers.run.configuration.view.JavaeeRunConfigurationEditorUtil;
 import com.intellij.openapi.options.ConfigurationException;
 import static fish.payara.PayaraConstants.DEFAULT_ADMIN_PORT;
 import java.awt.event.ActionListener;

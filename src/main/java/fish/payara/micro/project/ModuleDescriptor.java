@@ -16,8 +16,6 @@
  */
 package fish.payara.micro.project;
 
-import com.intellij.openapi.projectRoots.Sdk;
-
 /**
  *
  * @author Gaurav Gupta <gaurav.gupta@payara.fish>
