@@ -46,10 +46,6 @@ public class PayaraMicroModuleType extends ModuleType<PayaraMicroModuleBuilder> 
         super(id);
     }
 
-    public static ModuleType getModuleType() {
-        return ModuleTypeManager.getInstance().findByID(MODULE_ID);
-    }
-
     @NotNull
     @Override
     public PayaraMicroModuleBuilder createModuleBuilder() {

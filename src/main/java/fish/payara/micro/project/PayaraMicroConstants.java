@@ -18,7 +18,7 @@ package fish.payara.micro.project;
 
 public interface PayaraMicroConstants {
 
-    String MODULE_ID = "JAVA_MODULE";
+    String MODULE_ID = "Build Tools";
     String MODULE_TITLE = "Payara Micro";
     String MODULE_DESCRIPTION = "Payara Micro plugin enables you to start and stop the Payara Micro maven web applications";
 

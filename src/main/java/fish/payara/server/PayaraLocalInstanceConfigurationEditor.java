@@ -16,21 +16,18 @@
  */
 package fish.payara.server;
 
+import com.intellij.javaee.appServers.run.configuration.view.JavaeeRunConfigurationEditorUtil;
 import com.intellij.javaee.oss.server.JavaeeIntegration;
 import com.intellij.javaee.oss.server.JavaeeRunSettingsEditor;
-import com.intellij.javaee.run.configuration.view.JavaeeRunConfigurationEditorUtil;
-import static com.intellij.openapi.fileChooser.FileChooserDescriptorFactory.createSingleFolderDescriptor;
 import com.intellij.openapi.options.ConfigurationException;
-import static com.intellij.openapi.ui.TextComponentAccessor.STRING_COMBOBOX_WHOLE_TEXT;
 import com.intellij.ui.ComboboxWithBrowseButton;
 import fish.payara.PayaraBundle;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+
+import static com.intellij.openapi.fileChooser.FileChooserDescriptorFactory.createSingleFolderDescriptor;
+import static com.intellij.openapi.ui.TextComponentAccessor.STRING_COMBOBOX_WHOLE_TEXT;
 
 public class PayaraLocalInstanceConfigurationEditor extends JavaeeRunSettingsEditor<PayaraLocalInstanceModel> {
 

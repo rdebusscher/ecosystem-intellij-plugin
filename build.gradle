@@ -25,8 +25,8 @@ runIde {
 }
 
 intellij {
-    version '2020.1'
+    version '2020.2'
     type 'IU'
     pluginName = 'Payara'
-    plugins 'java', 'maven', 'gradle', 'JavaEE', 'Glassfish', 'terminal'
+    plugins 'java', 'maven', 'maven-model', 'gradle', 'JavaEE', 'Glassfish', 'terminal', 'frameworks-starters', "AppServersIntegration", "AppServersView"
 }

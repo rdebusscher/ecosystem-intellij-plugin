@@ -14,6 +14,8 @@
     <depends>org.jetbrains.plugins.terminal</depends>
     <depends>com.intellij.modules.java</depends>
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.javaee</depends>
+    <depends>com.intellij.javaee.app.servers.integration</depends>
     <depends>GlassFish</depends>
 
     <resource-bundle>fish.payara.PayaraBundle</resource-bundle>
@@ -22,10 +24,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <configurationType implementation="fish.payara.micro.PayaraMicroConfigurationType"/>
         <configurationType implementation="fish.payara.server.PayaraServerConfiguration"/>
-        <javaee.appServerIntegration implementation="fish.payara.server.PayaraServerIntegration"/>
-        <javaee.frameworkSupportContributor implementation="fish.payara.server.PayaraServerSupportContributor"/>
         <moduleBuilder builderClass="fish.payara.micro.project.PayaraMicroModuleBuilder" order="last" id="PAYARA_MICRO_MODULE_BUILDER"/>
         <moduleType implementationClass="fish.payara.micro.project.PayaraMicroModuleType" id="JAVA_MODULE"/>
+        <javaee.app.servers.integration.appServerIntegration implementation="fish.payara.server.PayaraServerIntegration"/>
+        <javaee.app.servers.integration.frameworkSupportContributor implementation="fish.payara.server.PayaraServerSupportContributor"/>
     </extensions>
     
     <actions>
