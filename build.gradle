@@ -30,3 +30,7 @@ intellij {
     pluginName = 'Payara'
     plugins 'java', 'maven', 'maven-model', 'gradle', 'JavaEE', 'Glassfish', 'terminal', 'frameworks-starters', "AppServersIntegration", "AppServersView"
 }
+
+publishPlugin {
+    token = System.getProperty("fish.payara.intellij.publish.token")
+}
