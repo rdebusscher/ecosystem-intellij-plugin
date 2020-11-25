@@ -20,7 +20,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import static fish.payara.PayaraConstants.DEFAULT_DEBUG_PORT;
 import fish.payara.micro.PayaraMicroProject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+import static fish.payara.PayaraConstants.DEFAULT_DEBUG_PORT;
 import static java.util.logging.Level.SEVERE;
 import static java.util.stream.Collectors.toList;
 
@@ -68,7 +68,7 @@ public class MavenProject extends PayaraMicroProject {
     private static final String COMPILE_GOAL = "compiler:compile";
     private static final String RESOURCES_GOAL = "resources:resources";
     public static final String PACKAGE_GOAL = "package";
-    public static final String DEBUG_PROPERTY = "-Ddebug=\"-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=%s\"";
+    public static final String DEBUG_PROPERTY = "-Ddebug=-agentlib:jdwp=transport=dt_socket,server=n,suspend=n,address=%s";
     private static final String BUILD_FILE = "pom.xml";
     private static final String USE_UBER_JAR = "useUberJar";
     private static final String EXPLODED = "exploded";
@@ -112,7 +112,7 @@ public class MavenProject extends PayaraMicroProject {
 
     @Override
     public String getReloadCommand() {
-        if (!exploded && useUberJar) {
+        if (!exploded) {
             throw new IllegalStateException("Reload task is only functional for exploded war artifacts.");
         }
         return String.format("mvn %s %s %s %s:%s:%s",

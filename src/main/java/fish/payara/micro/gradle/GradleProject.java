@@ -21,8 +21,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import fish.payara.PayaraConstants;
-import static fish.payara.PayaraConstants.DEFAULT_DEBUG_PORT;
 import fish.payara.micro.PayaraMicroProject;
 
 import java.io.File;
@@ -35,6 +33,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static fish.payara.PayaraConstants.DEFAULT_DEBUG_PORT;
 import static java.util.logging.Level.SEVERE;
 
 /**
@@ -54,7 +53,7 @@ public class GradleProject extends PayaraMicroProject {
     private static final String WAR_EXPLODE_GOAL = "warExplode";
     public static final String BUILD_GOAL = "build";
     public static final String DEBUG_PROPERTY_NAME = "-DpayaraMicro.debug";
-    public static final String DEBUG_PROPERTY = DEBUG_PROPERTY_NAME + "=\"-agentlib:jdwp=transport=dt_socket,server=n,suspend=y,address=%s\"";
+    public static final String DEBUG_PROPERTY = DEBUG_PROPERTY_NAME + "=-agentlib:jdwp=transport=dt_socket,server=n,suspend=n,address=%s";
     private static final String SETTINGS_FILE = "settings.gradle";
     private static final String ROOT_PROJECT_NAME = "rootProject.name";
     private static final String BUILD_FILE = "build.gradle";
@@ -100,7 +99,7 @@ public class GradleProject extends PayaraMicroProject {
 
     @Override
     public String getReloadCommand() {
-        if (!exploded && useUberJar) {
+        if (!exploded) {
             throw new IllegalStateException("Reload task is only functional for exploded war artifacts.");
         }
         return String.format("gradle %s %s",
