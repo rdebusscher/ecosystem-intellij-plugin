@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>fish.payara.intellij</id>
-    <name>Payara Tools</name>
+    <name>Payara Platform Tools</name>
     <vendor email="info@payara.fish" url="https://www.payara.fish/">
         Payara Foundation
     </vendor>
